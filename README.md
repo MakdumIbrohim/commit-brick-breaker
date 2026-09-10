@@ -34,7 +34,8 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_user: ${{ github.repository_owner }}
           output_path: game.gif
-          ball_skin: classic # Ganti opsi: classic | fire | ice | lightning | poison
+          ball_skin: classic # Opsi: classic | fire | ice | lightning | poison
+          theme: dark # Opsi: dark | light
 
       - name: Commit and Push
         run: |
@@ -56,6 +57,14 @@ Ubah nilai parameter `ball_skin` pada workflow di atas sesuai skin yang diingink
 | `ice` | <img src="assets/preview/sample_ice.gif" width="340" alt="ice" /> |
 | `lightning` | <img src="assets/preview/sample_lightning.gif" width="340" alt="lightning" /> |
 | `poison` | <img src="assets/preview/sample_poison.gif" width="340" alt="poison" /> |
+
+#### Opsi Tema Board (`theme`)
+Ubah nilai parameter `theme` pada workflow:
+
+| Parameter `theme` | Preview |
+| :---: | :---: |
+| `dark` (default) | <img src="assets/preview/sample_classic.gif" width="340" alt="dark theme" /> |
+| `light` | <img src="assets/preview/sample_light.gif" width="340" alt="light theme" /> |
 
 2. Beri izin write: buka repo **Settings** > **Actions** > **General** > **Workflow permissions** > pilih **Read and write permissions** > **Save**.
 
@@ -80,17 +89,20 @@ pip install pillow
 
 2. Jalankan perintah generator:
 ```bash
-python generate.py <username_github> [output_file.gif] [skin]
+python generate.py <username_github> [output_file.gif] [skin] [theme]
 ```
 
 Contoh pemakaian:
 ```bash
-# Menggunakan skin default (classic)
+# Default (classic skin, dark theme)
 python generate.py MakdumIbrohim game.gif
 
-# Menggunakan skin api (fire)
-python generate.py MakdumIbrohim game.gif fire
+# Tema terang (light theme)
+python generate.py MakdumIbrohim game.gif classic light
+
+# Skin api dengan tema terang
+python generate.py MakdumIbrohim game.gif fire light
 
 # Menggunakan token jika ingin mengambil data privat atau menghindari rate-limit
-GITHUB_TOKEN="ghp_xxx" python generate.py MakdumIbrohim game.gif ice
+GITHUB_TOKEN="ghp_xxx" python generate.py MakdumIbrohim game.gif ice dark
 ```

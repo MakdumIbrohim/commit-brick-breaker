@@ -3,11 +3,11 @@ import random
 from src.config import (
     CANVAS_W, CANVAS_H, MARGIN_X, MARGIN_Y,
     PADDLE_H, BALL_R, BALL_SPEED, INITIAL_LIVES,
-    BALL_SKINS, DEFAULT_SKIN
+    BALL_SKINS, DEFAULT_SKIN, THEMES, DEFAULT_THEME
 )
 
 class BrickBreakerEngine:
-    def __init__(self, grid, canvas_w=CANVAS_W, canvas_h=CANVAS_H, margin_x=MARGIN_X, margin_y=MARGIN_Y, skin=DEFAULT_SKIN):
+    def __init__(self, grid, canvas_w=CANVAS_W, canvas_h=CANVAS_H, margin_x=MARGIN_X, margin_y=MARGIN_Y, skin=DEFAULT_SKIN, theme=DEFAULT_THEME):
         self.initial_grid = [row[:] for row in grid]
         self.rows = len(grid)
         self.cols = len(grid[0])
@@ -17,6 +17,8 @@ class BrickBreakerEngine:
         self.margin_y = margin_y
         self.skin_name = skin if skin in BALL_SKINS else DEFAULT_SKIN
         self.skin = BALL_SKINS[self.skin_name]
+        self.theme_name = theme if theme in THEMES else DEFAULT_THEME
+        self.theme = THEMES[self.theme_name]
 
         # Scale cell width dynamically to fit all weeks from Jan 1
         available_w = canvas_w - 2 * margin_x

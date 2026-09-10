@@ -18,6 +18,10 @@ inputs:
     description: 'Ball elemental skin theme (classic, fire, ice, lightning, poison)'
     required: false
     default: 'classic'
+  theme:
+    description: 'Canvas board visual theme (dark, light)'
+    required: false
+    default: 'dark'
 runs:
   using: 'composite'
   steps:
@@ -32,4 +36,4 @@ runs:
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
-      run: python ${{ github.action_path }}/generate.py "${{ inputs.github_user }}" "${{ inputs.output_path }}" "${{ inputs.ball_skin }}"
+      run: python ${{ github.action_path }}/generate.py "${{ inputs.github_user }}" "${{ inputs.output_path }}" "${{ inputs.ball_skin }}" "${{ inputs.theme }}"
