@@ -1,6 +1,9 @@
 name: 'Commit Brick Breaker'
 description: 'Generate animated retro brick breaker game GIF from GitHub contribution graph'
 author: 'MakdumIbrohim'
+branding:
+  icon: 'play'
+  color: 'green'
 inputs:
   github_token:
     description: 'GitHub Token for fetching GraphQL contributions'
