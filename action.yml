@@ -14,6 +14,10 @@ inputs:
     description: 'Path for output GIF'
     required: false
     default: 'game.gif'
+  ball_skin:
+    description: 'Ball elemental skin theme (fire, ice, lightning, poison, classic)'
+    required: false
+    default: 'fire'
 runs:
   using: 'composite'
   steps:
@@ -28,4 +32,4 @@ runs:
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
-      run: python ${{ github.action_path }}/generate.py "${{ inputs.github_user }}" "${{ inputs.output_path }}"
+      run: python ${{ github.action_path }}/generate.py "${{ inputs.github_user }}" "${{ inputs.output_path }}" "${{ inputs.ball_skin }}"

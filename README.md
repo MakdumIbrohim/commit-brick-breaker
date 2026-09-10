@@ -31,14 +31,30 @@ Animasi retro game penghancur balok (Brick Breaker / Arkanoid) yang dibuat otoma
   ```
 
 ### 2. Jalankan Generator
-Jalankan skrip dengan menyertakan username GitHub target:
+Jalankan skrip dengan menyertakan username GitHub target dan skin bola (opsional):
 ```bash
-python generate.py <username_github> [nama_output.gif]
+python generate.py <username_github> [nama_output.gif] [skin]
 ```
+
+Pilihan skin berelemen:
+- `fire`: Bola api oranye-kemerahan dengan partikel percikan api (*sparks*) dan bara (*embers*) yang melayang ke atas.
+- `ice`: Bola es biru muda dengan partikel kepingan salju (*snowflakes*) dan kristal es (*frost crystals*) yang melayang turun.
+- `lightning`: Bola petir kuning-ungu dengan partikel cabang kilat dan percikan listrik tajam (*zaps*).
+- `poison`: Bola asam hijau toksik dengan partikel gelembung (*bubbles*) beracun.
+- `classic`: Bola hijau polos (`#39D353`) bersih tanpa efek partikel atau jejak trail.
+
+### Galeri Preview Skin
+| Skin | Preview |
+|---|---|
+| **Fire** | `assets/preview/sample_fire.gif` |
+| **Ice** | `assets/preview/sample_ice.gif` |
+| **Lightning** | `assets/preview/sample_lightning.gif` |
+| **Poison** | `assets/preview/sample_poison.gif` |
+| **Classic** | `assets/preview/sample_classic.gif` |
 
 Contoh:
 ```bash
-python generate.py MakdumIbrohim game.gif
+python generate.py MakdumIbrohim game.gif ice
 ```
 
 Jika ingin menggunakan data commit riil dari akun privat atau menghindari batasan rate-limit publik:
@@ -79,6 +95,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_user: ${{ github.repository_owner }}
           output_path: game.gif
+          ball_skin: fireball # Pilihan: classic, fireball, neon, gold, plasma
 
       - name: Commit dan Simpan Hasil
         run: |

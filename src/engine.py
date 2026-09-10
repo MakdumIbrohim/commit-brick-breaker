@@ -2,11 +2,12 @@ import math
 import random
 from src.config import (
     CANVAS_W, CANVAS_H, MARGIN_X, MARGIN_Y,
-    PADDLE_H, BALL_R, BALL_SPEED, INITIAL_LIVES
+    PADDLE_H, BALL_R, BALL_SPEED, INITIAL_LIVES,
+    BALL_SKINS, DEFAULT_SKIN
 )
 
 class BrickBreakerEngine:
-    def __init__(self, grid, canvas_w=CANVAS_W, canvas_h=CANVAS_H, margin_x=MARGIN_X, margin_y=MARGIN_Y):
+    def __init__(self, grid, canvas_w=CANVAS_W, canvas_h=CANVAS_H, margin_x=MARGIN_X, margin_y=MARGIN_Y, skin=DEFAULT_SKIN):
         self.initial_grid = [row[:] for row in grid]
         self.rows = len(grid)
         self.cols = len(grid[0])
@@ -14,6 +15,8 @@ class BrickBreakerEngine:
         self.canvas_h = canvas_h
         self.margin_x = margin_x
         self.margin_y = margin_y
+        self.skin_name = skin if skin in BALL_SKINS else DEFAULT_SKIN
+        self.skin = BALL_SKINS[self.skin_name]
 
         # Scale cell width dynamically to fit all weeks from Jan 1
         available_w = canvas_w - 2 * margin_x
@@ -36,6 +39,7 @@ class BrickBreakerEngine:
         self.state = "playing"  # playing, life_lost, game_over, win
         self.state_timer = 0
         self.particles = []
+        self.trail = []
         self.sim_steps = 0
         self.miss_active = False
         self.miss_side = None
@@ -59,25 +63,97 @@ class BrickBreakerEngine:
 
         self.miss_active = False
         self.miss_side = None
+        self.trail = []
 
-    def spawn_particles(self, x, y, color):
-        for _ in range(6):
+    def spawn_particles(self, x, y, count=8, is_trail=False):
+        elem = self.skin["element"]
+        if elem == "none":
+            return
+
+        colors = self.skin["particle_colors"]
+
+        for _ in range(count):
+            color = random.choice(colors)
+            if elem == "fire":
+                # Upward flickering sparks and rising embers
+                vx = random.uniform(-1.8, 1.8)
+                vy = random.uniform(-3.5, -0.5) if not is_trail else random.uniform(-2.0, 0.5)
+                life = random.randint(6, 12)
+                p_type = "spark" if random.random() < 0.6 else "ember"
+                size = random.choice([1, 2])
+            elif elem == "ice":
+                # Drifting flakes and tumbling frost crystals
+                vx = random.uniform(-1.2, 1.2)
+                vy = random.uniform(0.5, 2.2) if not is_trail else random.uniform(-0.8, 1.2)
+                life = random.randint(8, 16)
+                p_type = "snowflake" if random.random() < 0.5 else "crystal"
+                size = random.choice([2, 3])
+            elif elem == "lightning":
+                # Jagged electric zap particles
+                vx = random.uniform(-3.5, 3.5)
+                vy = random.uniform(-3.5, 3.5)
+                life = random.randint(4, 7)
+                p_type = "zap"
+                size = random.choice([1, 2])
+            elif elem == "poison":
+                # Floating toxic bubbles that waft upwards
+                vx = random.uniform(-1.0, 1.0)
+                vy = random.uniform(-2.0, -0.4)
+                life = random.randint(9, 15)
+                p_type = "bubble"
+                size = random.choice([2, 3])
+            else:
+                # Neutral physical debris
+                vx = random.uniform(-2.2, 2.2)
+                vy = random.uniform(-2.2, 2.2)
+                life = random.randint(5, 9)
+                p_type = "debris"
+                size = 1
+
             self.particles.append({
                 "x": x, "y": y,
-                "vx": random.uniform(-2.5, 2.5),
-                "vy": random.uniform(-2.5, 2.5),
-                "life": 8,
-                "color": color
+                "vx": vx, "vy": vy,
+                "life": life,
+                "max_life": life,
+                "color": color,
+                "type": p_type,
+                "size": size
             })
 
     def step(self):
         self.sim_steps += 1
 
+        elem = self.skin["element"]
         for p in self.particles:
             p["x"] += p["vx"]
             p["y"] += p["vy"]
+
+            # Physics behaviors tailored to element
+            if p["type"] in ("spark", "ember"):
+                p["vy"] += 0.08  # mild gravity after initial rise
+                p["vx"] *= 0.95
+            elif p["type"] in ("snowflake", "crystal"):
+                p["x"] += math.sin(self.sim_steps * 0.2 + p["life"]) * 0.4  # organic flutter
+            elif p["type"] == "bubble":
+                p["x"] += math.cos(self.sim_steps * 0.15) * 0.3
+            elif p["type"] == "zap":
+                p["vx"] += random.uniform(-0.6, 0.6)
+                p["vy"] += random.uniform(-0.6, 0.6)
+
             p["life"] -= 1
         self.particles = [p for p in self.particles if p["life"] > 0]
+
+        # Spawn ambient trail particles behind the ball in flight
+        if self.state == "playing" and self.sim_steps % 2 == 0:
+            self.spawn_particles(self.ball_x, self.ball_y, count=2, is_trail=True)
+
+        # Update motion trail
+        if self.state == "playing":
+            self.trail.append((self.ball_x, self.ball_y))
+            if len(self.trail) > 5:
+                self.trail.pop(0)
+        else:
+            self.trail = []
 
         # Delay before respawning ball or resetting game
         if self.state in ("life_lost", "game_over", "win"):
@@ -173,7 +249,7 @@ class BrickBreakerEngine:
             self.lives -= 1
             self.miss_active = False
             self.miss_side = None
-            self.spawn_particles(self.ball_x, self.canvas_h - 10, (255, 100, 100))
+            self.spawn_particles(self.ball_x, self.canvas_h - 10, count=14)
             if self.lives <= 0:
                 self.state = "game_over"
             else:
@@ -192,7 +268,7 @@ class BrickBreakerEngine:
                 by1 - self.ball_r <= self.ball_y <= by2 + self.ball_r):
 
                 del self.bricks[(r, c)]
-                self.spawn_particles((bx1 + bx2) / 2, (by1 + by2) / 2, (57, 211, 83))
+                self.spawn_particles((bx1 + bx2) / 2, (by1 + by2) / 2, count=10)
 
                 prev_x = self.ball_x - self.vx
                 prev_y = self.ball_y - self.vy

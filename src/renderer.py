@@ -49,9 +49,34 @@ def render_frame(engine):
             color = get_brick_color(engine.grid[r][c]) if (r, c) in engine.bricks else EMPTY_BRICK
             draw.rectangle([bx + 1, by + 1, bx + engine.cell_w - 2, by + engine.cell_h - 2], fill=color)
 
-    # Render collision particles
+    # Render specialized element particles
     for p in engine.particles:
-        draw.rectangle([p["x"] - 1, p["y"] - 1, p["x"] + 1, p["y"] + 1], fill=p["color"])
+        px, py = p["x"], p["y"]
+        sz = p["size"]
+        col = p["color"]
+        ptype = p.get("type", "debris")
+
+        if ptype == "snowflake":
+            # Cross snowflake shape (+)
+            draw.line([(px - sz, py), (px + sz, py)], fill=col, width=1)
+            draw.line([(px, py - sz), (px, py + sz)], fill=col, width=1)
+        elif ptype == "crystal":
+            # Diamond frost crystal
+            draw.polygon([(px, py - sz), (px + sz, py), (px, py + sz), (px - sz, py)], fill=col)
+        elif ptype == "ember":
+            # Glowing ember round particle
+            draw.ellipse([px - sz, py - sz, px + sz, py + sz], fill=col)
+        elif ptype == "spark":
+            # Sharp spark line along trajectory
+            draw.line([(px, py), (px - p["vx"] * 1.5, py - p["vy"] * 1.5)], fill=col, width=1)
+        elif ptype == "bubble":
+            # Hollow translucent bubble
+            draw.ellipse([px - sz, py - sz, px + sz, py + sz], outline=col, width=1)
+        elif ptype == "zap":
+            # Jagged lightning branch
+            draw.line([(px, py), (px + p["vx"], py + p["vy"])], fill=col, width=1)
+        else:
+            draw.rectangle([px - 1, py - 1, px + 1, py + 1], fill=col)
 
     # Render paddle
     draw.rounded_rectangle(
@@ -59,12 +84,18 @@ def render_frame(engine):
         radius=3, fill=PADDLE_COLOR
     )
 
+    # Render motion trail for ball skin
+    if engine.skin.get("trail_color"):
+        for i, (tx, ty) in enumerate(engine.trail):
+            r = max(1, engine.ball_r - (len(engine.trail) - i))
+            draw.ellipse([tx - r, ty - r, tx + r, ty + r], fill=engine.skin["trail_color"])
+
     # Render ball
     if engine.state in ("playing", "win") or (engine.state == "life_lost" and engine.state_timer > 4):
         draw.ellipse(
             [engine.ball_x - engine.ball_r, engine.ball_y - engine.ball_r,
              engine.ball_x + engine.ball_r, engine.ball_y + engine.ball_r],
-            fill=BALL_COLOR
+            fill=engine.skin["color"]
         )
 
     # Game status banners
