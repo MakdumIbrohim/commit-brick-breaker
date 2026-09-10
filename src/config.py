@@ -64,4 +64,4 @@ BALL_SKINS = {
         "particle_colors": [(126, 231, 135), (57, 211, 83), (35, 134, 54), (0, 109, 50)]
     }
 }
-DEFAULT_SKIN = "fire"
+DEFAULT_SKIN = "classic"

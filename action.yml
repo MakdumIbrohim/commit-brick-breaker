@@ -15,9 +15,9 @@ inputs:
     required: false
     default: 'game.gif'
   ball_skin:
-    description: 'Ball elemental skin theme (fire, ice, lightning, poison, classic)'
+    description: 'Ball elemental skin theme (classic, fire, ice, lightning, poison)'
     required: false
-    default: 'fire'
+    default: 'classic'
 runs:
   using: 'composite'
   steps:

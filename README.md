@@ -44,13 +44,14 @@ Pilihan skin berelemen:
 - `classic`: Bola hijau polos (`#39D353`) bersih tanpa efek partikel atau jejak trail.
 
 ### Galeri Preview Skin
-| Skin | Preview |
-|---|---|
-| **Fire** | `assets/preview/sample_fire.gif` |
-| **Ice** | `assets/preview/sample_ice.gif` |
-| **Lightning** | `assets/preview/sample_lightning.gif` |
-| **Poison** | `assets/preview/sample_poison.gif` |
-| **Classic** | `assets/preview/sample_classic.gif` |
+
+| Skin | Preview Animasi |
+| :---: | :---: |
+| **Fire** | <img src="assets/preview/sample_fire.gif" width="340" alt="Skin Fire" /> |
+| **Ice** | <img src="assets/preview/sample_ice.gif" width="340" alt="Skin Ice" /> |
+| **Lightning** | <img src="assets/preview/sample_lightning.gif" width="340" alt="Skin Lightning" /> |
+| **Poison** | <img src="assets/preview/sample_poison.gif" width="340" alt="Skin Poison" /> |
+| **Classic** | <img src="assets/preview/sample_classic.gif" width="340" alt="Skin Classic" /> |
 
 Contoh:
 ```bash
@@ -66,7 +67,24 @@ GITHUB_TOKEN="ghp_token_anda" python generate.py MakdumIbrohim game.gif
 
 ## Panduan Pemasangan di Profil GitHub
 
-Otomatiskan pembaruan game di README profil GitHub Anda menggunakan GitHub Actions.
+Otomatiskan pembuatan game animasi di profil GitHub Anda menggunakan GitHub Actions.
+
+### Cara Mengganti Skin Bola (Untuk Pengguna Action)
+
+Cukup ubah parameter **`ball_skin`** di file workflow Anda (`.github/workflows/brick-breaker.yml`):
+
+| Parameter | Tipe | Default | Nilai yang Tersedia | Keterangan |
+|---|---|---|---|---|
+| `ball_skin` | string | `classic` | `classic`, `fire`, `ice`, `lightning`, `poison` | Menentukan efek animasi, warna bola, trail, dan partikel |
+
+Contoh pemakaian:
+```yaml
+- uses: MakdumIbrohim/gh-brick-breaker@main
+  with:
+    ball_skin: ice # Ganti ke: fire, ice, lightning, poison, atau classic
+```
+
+---
 
 ### Langkah 1: Buat File Workflow
 Pada repositori profil Anda (biasanya bernama sama dengan username Anda, contoh `username/username`), buat file baru di `.github/workflows/brick-breaker.yml`:
@@ -76,7 +94,7 @@ name: Perbarui Brick Breaker
 
 on:
   schedule:
-    # Berjalan setiap hari pada jam 00:00 UTC
+    # Berjalan otomatis setiap hari pada jam 00:00 UTC
     - cron: "0 0 * * *"
   workflow_dispatch:
 
@@ -95,7 +113,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_user: ${{ github.repository_owner }}
           output_path: game.gif
-          ball_skin: fireball # Pilihan: classic, fireball, neon, gold, plasma
+          ball_skin: fire # <-- GANTI DI SINI: fire | ice | lightning | poison | classic
 
       - name: Commit dan Simpan Hasil
         run: |
