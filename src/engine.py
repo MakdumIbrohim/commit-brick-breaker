@@ -3,11 +3,12 @@ import random
 from src.config import (
     CANVAS_W, CANVAS_H, MARGIN_X, MARGIN_Y,
     PADDLE_H, BALL_R, BALL_SPEED, INITIAL_LIVES,
-    BALL_SKINS, DEFAULT_SKIN, THEMES, DEFAULT_THEME
+    BALL_SKINS, DEFAULT_SKIN, THEMES, DEFAULT_THEME,
+    PADDLE_SKINS, DEFAULT_PADDLE_SKIN
 )
 
 class BrickBreakerEngine:
-    def __init__(self, grid, canvas_w=CANVAS_W, canvas_h=CANVAS_H, margin_x=MARGIN_X, margin_y=MARGIN_Y, skin=DEFAULT_SKIN, theme=DEFAULT_THEME):
+    def __init__(self, grid, canvas_w=CANVAS_W, canvas_h=CANVAS_H, margin_x=MARGIN_X, margin_y=MARGIN_Y, skin=DEFAULT_SKIN, theme=DEFAULT_THEME, paddle_skin=DEFAULT_PADDLE_SKIN):
         self.initial_grid = [row[:] for row in grid]
         self.rows = len(grid)
         self.cols = len(grid[0])
@@ -19,6 +20,8 @@ class BrickBreakerEngine:
         self.skin = BALL_SKINS[self.skin_name]
         self.theme_name = theme if theme in THEMES else DEFAULT_THEME
         self.theme = THEMES[self.theme_name]
+        self.paddle_skin_name = paddle_skin if paddle_skin in PADDLE_SKINS else DEFAULT_PADDLE_SKIN
+        self.paddle_skin = PADDLE_SKINS[self.paddle_skin_name]
 
         # Scale cell width dynamically to fit all weeks from Jan 1
         available_w = canvas_w - 2 * margin_x
@@ -66,6 +69,72 @@ class BrickBreakerEngine:
         self.miss_active = False
         self.miss_side = None
         self.trail = []
+
+    def spawn_paddle_particles(self):
+        pstyle = self.paddle_skin.get("style", "default")
+        y = self.paddle_y
+        x1 = self.paddle_x
+        x2 = self.paddle_x + self.paddle_w
+
+        if pstyle == "mecha":
+            # Red/orange rocket exhaust flames shooting down from left/right boosters
+            for bx in (x1 + 3, x2 - 3):
+                self.particles.append({
+                    "x": bx + random.uniform(-1, 1),
+                    "y": y + self.paddle_h,
+                    "vx": random.uniform(-0.5, 0.5),
+                    "vy": random.uniform(1.2, 2.5),
+                    "life": random.randint(4, 7),
+                    "max_life": 7,
+                    "color": random.choice([(255, 60, 30), (255, 140, 0), (255, 220, 0)]),
+                    "type": "thrust",
+                    "size": random.choice([1, 2])
+                })
+        elif pstyle == "laser":
+            # Cyan energy discharge specks floating from emitter ends
+            for ex in (x1 + 2, x2 - 2):
+                if random.random() < 0.6:
+                    self.particles.append({
+                        "x": ex,
+                        "y": y + random.uniform(0, self.paddle_h),
+                        "vx": random.uniform(-1.0, 1.0),
+                        "vy": random.uniform(-1.5, -0.2),
+                        "life": random.randint(4, 8),
+                        "max_life": 8,
+                        "color": random.choice([(0, 245, 255), (180, 255, 255), (255, 255, 255)]),
+                        "type": "energy",
+                        "size": 1
+                    })
+        elif pstyle == "cyber":
+            # Pulsing neon digital pixels drifting up
+            if random.random() < 0.7:
+                rx = random.uniform(x1 + 6, x2 - 6)
+                self.particles.append({
+                    "x": rx,
+                    "y": y - 1,
+                    "vx": random.uniform(-0.3, 0.3),
+                    "vy": random.uniform(-1.6, -0.6),
+                    "life": random.randint(5, 9),
+                    "max_life": 9,
+                    "color": random.choice([(210, 80, 255), (0, 255, 200), (255, 255, 255)]),
+                    "type": "pixel",
+                    "size": 1
+                })
+        elif pstyle == "retro":
+            # 8-bit arcade CRT scanline dust motes floating up
+            if random.random() < 0.65:
+                rx = random.uniform(x1 + 8, x2 - 8)
+                self.particles.append({
+                    "x": rx,
+                    "y": y - 1,
+                    "vx": random.uniform(-0.4, 0.4),
+                    "vy": random.uniform(-1.5, -0.4),
+                    "life": random.randint(5, 9),
+                    "max_life": 9,
+                    "color": random.choice([(255, 215, 0), (235, 130, 60), (255, 255, 255)]),
+                    "type": "pixel",
+                    "size": random.choice([1, 2])
+                })
 
     def spawn_particles(self, x, y, count=8, is_trail=False):
         elem = self.skin["element"]
@@ -148,6 +217,10 @@ class BrickBreakerEngine:
         # Spawn ambient trail particles behind the ball in flight
         if self.state == "playing" and self.sim_steps % 2 == 0:
             self.spawn_particles(self.ball_x, self.ball_y, count=2, is_trail=True)
+
+        # Spawn specialized particles from paddle when in play
+        if self.state == "playing":
+            self.spawn_paddle_particles()
 
         # Update motion trail
         if self.state == "playing":

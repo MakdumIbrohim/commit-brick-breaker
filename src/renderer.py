@@ -66,6 +66,15 @@ def render_frame(engine):
             draw.ellipse([px - sz, py - sz, px + sz, py + sz], outline=col, width=1)
         elif ptype == "zap":
             draw.line([(px, py), (px + p["vx"], py + p["vy"])], fill=col, width=1)
+        elif ptype == "thrust":
+            # Mecha rocket flame jet
+            draw.polygon([(px - sz, py), (px + sz, py), (px, py + sz * 2.5)], fill=col)
+        elif ptype == "energy":
+            # Laser power discharge dot
+            draw.ellipse([px - sz, py - sz, px + sz, py + sz], fill=col)
+        elif ptype == "pixel":
+            # 8-bit square digital pixel
+            draw.rectangle([px - sz, py - sz, px + sz, py + sz], fill=col)
         else:
             draw.rectangle([px - 1, py - 1, px + 1, py + 1], fill=col)
 
@@ -75,11 +84,60 @@ def render_frame(engine):
             r = max(1, engine.ball_r - (len(engine.trail) - i))
             draw.ellipse([tx - r, ty - r, tx + r, ty + r], fill=engine.skin["trail_color"])
 
-    # Render paddle
-    draw.rounded_rectangle(
-        [engine.paddle_x, engine.paddle_y, engine.paddle_x + engine.paddle_w, engine.paddle_y + engine.paddle_h],
-        radius=3, fill=theme["paddle_color"]
-    )
+    # Render paddle with custom geometric design and structural details
+    pskin = engine.paddle_skin
+    style = pskin.get("style", "default")
+    x1, y1 = engine.paddle_x, engine.paddle_y
+    x2, y2 = engine.paddle_x + engine.paddle_w, engine.paddle_y + engine.paddle_h
+    mid_y = (y1 + y2) / 2
+    pw = engine.paddle_w
+
+    if style == "laser":
+        # Sci-Fi Laser Rail: dual heavy battery end-caps + glowing plasma chamber
+        cap_w = 7
+        draw.rectangle([x1, y1 - 2, x1 + cap_w, y2 + 2], fill=pskin["caps"])
+        draw.rectangle([x2 - cap_w, y1 - 2, x2, y2 + 2], fill=pskin["caps"])
+        draw.rounded_rectangle([x1 + cap_w, y1, x2 - cap_w, y2], radius=2, fill=pskin["primary"])
+        draw.rectangle([x1 + cap_w + 3, mid_y - 1, x2 - cap_w - 3, mid_y + 1], fill=pskin["core"])
+        # Emitter tip dots
+        draw.rectangle([x1 + 2, mid_y - 1, x1 + 4, mid_y + 1], fill=(255, 255, 255))
+        draw.rectangle([x2 - 4, mid_y - 1, x2 - 2, mid_y + 1], fill=(255, 255, 255))
+
+    elif style == "retro":
+        # 8-bit Arcade Segmented Bar: angled bumpers, hazard striping, bolt studs
+        cap_w = 8
+        draw.polygon([(x1, y2), (x1 + cap_w, y1), (x1 + cap_w, y2)], fill=pskin["caps"])
+        draw.polygon([(x2, y2), (x2 - cap_w, y1), (x2 - cap_w, y2)], fill=pskin["caps"])
+        draw.rectangle([x1 + cap_w, y1, x2 - cap_w, y2], fill=pskin["primary"])
+        # Racing / Hazard stripes
+        for sx in range(int(x1 + cap_w + 6), int(x2 - cap_w - 6), 12):
+            draw.polygon([(sx, y2), (sx + 4, y1), (sx + 8, y1), (sx + 4, y2)], fill=pskin["stripes"])
+        draw.rectangle([x1 + cap_w, y1, x2 - cap_w, y1 + 1], fill=(255, 255, 255))
+
+    elif style == "mecha":
+        # Armored Mecha Rail: segmented steel plates + red rocket thrusters at flanks
+        bw = 6
+        # Left and right red booster jets
+        draw.polygon([(x1, y1 + 2), (x1 + bw, y1 - 1), (x1 + bw, y2 + 1), (x1, y2 - 2)], fill=pskin["booster"])
+        draw.polygon([(x2, y1 + 2), (x2 - bw, y1 - 1), (x2 - bw, y2 + 1), (x2, y2 - 2)], fill=pskin["booster"])
+        # Heavy armor body
+        draw.rectangle([x1 + bw, y1, x2 - bw, y2], fill=pskin["primary"])
+        # Center reinforced armor plate
+        cx = (x1 + x2) / 2
+        draw.rounded_rectangle([cx - pw * 0.22, y1 - 1, cx + pw * 0.22, y2 + 1], radius=2, fill=pskin["plate"])
+        draw.line([(x1 + bw, y1 + 1), (x2 - bw, y1 + 1)], fill=(255, 255, 255), width=1)
+
+    elif style == "cyber":
+        # Synthwave Cyber Rail: neon gradient border, power conduits, luminous cyan diode
+        draw.rounded_rectangle([x1, y1, x2, y2], radius=4, fill=pskin["caps"], outline=pskin["primary"], width=1)
+        # Inner energy conduit
+        draw.rectangle([x1 + 6, y1 + 2, x2 - 6, y2 - 2], fill=pskin["primary"])
+        # Central glowing diode chip
+        draw.ellipse([(x1 + x2) / 2 - 4, mid_y - 2, (x1 + x2) / 2 + 4, mid_y + 2], fill=pskin["core"])
+
+    else:
+        # Default smooth pill paddle
+        draw.rounded_rectangle([x1, y1, x2, y2], radius=3, fill=theme["paddle_color"])
 
     # Render ball
     if engine.state in ("playing", "win") or (engine.state == "life_lost" and engine.state_timer > 4):

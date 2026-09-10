@@ -42,6 +42,7 @@ jobs:
           output_path: game.gif
           ball_skin: classic # classic | fire | ice | lightning | poison
           theme: dark # dark | light
+          paddle_skin: default # default | neon | retro | gold | ruby
 
       - name: Commit and Push
         run: |
@@ -61,6 +62,15 @@ jobs:
 | `ice` | <img src="assets/preview/sample_ice.gif" width="340" alt="ice" /> |
 | `lightning` | <img src="assets/preview/sample_lightning.gif" width="340" alt="lightning" /> |
 | `poison` | <img src="assets/preview/sample_poison.gif" width="340" alt="poison" /> |
+
+#### Paddle Skin Options (`paddle_skin`)
+| Option | Preview |
+| :---: | :---: |
+| `default` | Primary theme color |
+| `laser` | <img src="assets/preview/sample_paddle_laser.gif" width="340" alt="paddle laser" /> |
+| `retro` | <img src="assets/preview/sample_paddle_retro.gif" width="340" alt="paddle retro" /> |
+| `mecha` | <img src="assets/preview/sample_paddle_mecha.gif" width="340" alt="paddle mecha" /> |
+| `cyber` | <img src="assets/preview/sample_paddle_cyber.gif" width="340" alt="paddle cyber" /> |
 
 #### Board Theme Options (`theme`)
 | Option | Preview |
@@ -83,14 +93,14 @@ jobs:
 git clone https://github.com/MakdumIbrohim/commit-brick-breaker.git
 cd commit-brick-breaker
 pip install pillow
-python generate.py <username> [output.gif] [skin] [theme]
+python generate.py <username> [output.gif] [skin] [theme] [paddle_skin]
 ```
 
 Examples:
 ```bash
 python generate.py MakdumIbrohim game.gif
-python generate.py MakdumIbrohim game.gif fire dark
-GITHUB_TOKEN="ghp_xxx" python generate.py MakdumIbrohim game.gif ice light
+python generate.py MakdumIbrohim game.gif fire dark laser
+GITHUB_TOKEN="ghp_xxx" python generate.py MakdumIbrohim game.gif ice light mecha
 ```
 
 ---
@@ -127,6 +137,7 @@ jobs:
           output_path: game.gif
           ball_skin: classic # classic | fire | ice | lightning | poison
           theme: dark # dark | light
+          paddle_skin: default # default | laser | retro | mecha | cyber
 
       - name: Commit and Push
         run: |
@@ -137,6 +148,15 @@ jobs:
           git pull --rebase --autostash origin main || true
           git push
 ```
+
+#### Pilihan Skin Paddle (`paddle_skin`)
+| Opsi | Preview |
+| :---: | :---: |
+| `default` | Warna primer tema aktif |
+| `laser` | <img src="assets/preview/sample_paddle_laser.gif" width="340" alt="paddle laser" /> |
+| `retro` | <img src="assets/preview/sample_paddle_retro.gif" width="340" alt="paddle retro" /> |
+| `mecha` | <img src="assets/preview/sample_paddle_mecha.gif" width="340" alt="paddle mecha" /> |
+| `cyber` | <img src="assets/preview/sample_paddle_cyber.gif" width="340" alt="paddle cyber" /> |
 
 2. Beri izin write: buka repo **Settings** > **Actions** > **General** > **Workflow permissions** > pilih **Read and write permissions** > **Save**.
 
@@ -153,12 +173,12 @@ jobs:
 git clone https://github.com/MakdumIbrohim/commit-brick-breaker.git
 cd commit-brick-breaker
 pip install pillow
-python generate.py <username_github> [output_file.gif] [skin] [theme]
+python generate.py <username_github> [output_file.gif] [skin] [theme] [paddle_skin]
 ```
 
 Contoh pemakaian:
 ```bash
 python generate.py MakdumIbrohim game.gif
-python generate.py MakdumIbrohim game.gif fire dark
-GITHUB_TOKEN="ghp_xxx" python generate.py MakdumIbrohim game.gif ice light
+python generate.py MakdumIbrohim game.gif fire dark laser
+GITHUB_TOKEN="ghp_xxx" python generate.py MakdumIbrohim game.gif ice light mecha
 ```

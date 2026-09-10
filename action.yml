@@ -25,6 +25,10 @@ inputs:
     description: 'Canvas board visual theme (dark, light)'
     required: false
     default: 'dark'
+  paddle_skin:
+    description: 'Paddle visual skin theme (default, laser, retro, mecha, cyber)'
+    required: false
+    default: 'default'
 runs:
   using: 'composite'
   steps:
@@ -39,4 +43,4 @@ runs:
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
-      run: python ${{ github.action_path }}/generate.py "${{ inputs.github_user }}" "${{ inputs.output_path }}" "${{ inputs.ball_skin }}" "${{ inputs.theme }}"
+      run: python ${{ github.action_path }}/generate.py "${{ inputs.github_user }}" "${{ inputs.output_path }}" "${{ inputs.ball_skin }}" "${{ inputs.theme }}" "${{ inputs.paddle_skin }}"

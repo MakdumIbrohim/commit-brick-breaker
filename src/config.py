@@ -91,3 +91,45 @@ BALL_SKINS = {
     }
 }
 DEFAULT_SKIN = "classic"
+
+# Paddle Skins with distinct visual geometry, textures & end-caps:
+# - default: clean rounded pill paddle
+# - laser: sci-fi plasma rail with angled laser emitter endcaps and power core
+# - retro: 8-bit segmented striped block with rivet screws
+# - mecha: futuristic armor plating with dual chevron side-boosters
+# - cyber: pulsing grid synthwave paddle with neon border corners
+PADDLE_SKINS = {
+    "default": {
+        "name": "default",
+        "style": "default"
+    },
+    "laser": {
+        "name": "laser",
+        "style": "laser",
+        "primary": (0, 245, 255),
+        "core": (255, 255, 255),
+        "caps": (0, 120, 215)
+    },
+    "retro": {
+        "name": "retro",
+        "style": "retro",
+        "primary": (235, 130, 60),
+        "stripes": (255, 215, 0),
+        "caps": (160, 60, 20)
+    },
+    "mecha": {
+        "name": "mecha",
+        "style": "mecha",
+        "primary": (139, 148, 158),
+        "plate": (240, 246, 252),
+        "booster": (255, 75, 75)
+    },
+    "cyber": {
+        "name": "cyber",
+        "style": "cyber",
+        "primary": (210, 80, 255),
+        "core": (0, 255, 200),
+        "caps": (120, 20, 200)
+    }
+}
+DEFAULT_PADDLE_SKIN = "default"
