@@ -1,4 +1,4 @@
-# commit-brick-breaker
+# Commit Brick Breaker
 
 <p align="center">
   <img src="game.gif" alt="commit-brick-breaker" />
