@@ -6,6 +6,10 @@ from src.config import (
     BALL_SKINS, DEFAULT_SKIN, THEMES, DEFAULT_THEME,
     PADDLE_SKINS, DEFAULT_PADDLE_SKIN
 )
+from src.ambient import init_ambient_effects, update_ambient_effects
+from src.particles import (
+    create_ball_particles, create_paddle_particles, update_particles
+)
 
 class BrickBreakerEngine:
     def __init__(self, grid, canvas_w=CANVAS_W, canvas_h=CANVAS_H, margin_x=MARGIN_X, margin_y=MARGIN_Y, skin=DEFAULT_SKIN, theme=DEFAULT_THEME, paddle_skin=DEFAULT_PADDLE_SKIN):
@@ -36,40 +40,6 @@ class BrickBreakerEngine:
 
         self.reset_game()
 
-    def init_ambient_effects(self):
-        effect = self.theme.get("bg_effect", "starfield")
-        self.ambient_items = []
-        if effect == "starfield":
-            # Twinkling stars distributed across background
-            for _ in range(35):
-                self.ambient_items.append({
-                    "x": random.uniform(5, self.canvas_w - 5),
-                    "y": random.uniform(5, self.canvas_h - 10),
-                    "brightness": random.uniform(0.2, 1.0),
-                    "speed": random.uniform(0.02, 0.06),
-                    "size": 1 if random.random() < 0.8 else 2
-                })
-        elif effect == "mario_sky":
-            # Distinct Mario-style puffy pixel clouds drifting in open sky area below the bricks
-            cloud_configs = [
-                {"x": 30, "y": 140, "speed": 0.24, "scale": 1.1},
-                {"x": 260, "y": 185, "speed": 0.18, "scale": 0.85},
-                {"x": 480, "y": 148, "speed": 0.22, "scale": 1.25},
-                {"x": -70, "y": 170, "speed": 0.20, "scale": 0.95}
-            ]
-            for cc in cloud_configs:
-                self.ambient_items.append(cc)
-        elif effect == "matrix_rain":
-            # Digital code rain streams
-            cols = int(self.canvas_w / 16)
-            for c in range(cols):
-                self.ambient_items.append({
-                    "x": c * 16 + 8,
-                    "y": random.uniform(0, self.canvas_h),
-                    "speed": random.uniform(1.2, 2.5),
-                    "len": random.randint(4, 9)
-                })
-
     def reset_game(self):
         self.grid = [row[:] for row in self.initial_grid]
         self.bricks = {(r, c): self.grid[r][c] for r in range(self.rows) for c in range(self.cols) if self.grid[r][c] > 0}
@@ -82,7 +52,7 @@ class BrickBreakerEngine:
         self.sim_steps = 0
         self.miss_active = False
         self.miss_side = None
-        self.init_ambient_effects()
+        self.ambient_items = init_ambient_effects(self.theme, self.canvas_w, self.canvas_h)
 
         self.reset_ball()
 
@@ -105,149 +75,20 @@ class BrickBreakerEngine:
         self.miss_side = None
         self.trail = []
 
-    def spawn_paddle_particles(self):
-        pstyle = self.paddle_skin.get("style", "default")
-        y = self.paddle_y
-        x1 = self.paddle_x
-        x2 = self.paddle_x + self.paddle_w
-
-        if pstyle == "mecha":
-            # Red/orange rocket exhaust flames shooting down from left/right boosters
-            for bx in (x1 + 3, x2 - 3):
-                self.particles.append({
-                    "x": bx + random.uniform(-1, 1),
-                    "y": y + self.paddle_h,
-                    "vx": random.uniform(-0.5, 0.5),
-                    "vy": random.uniform(1.2, 2.5),
-                    "life": random.randint(4, 7),
-                    "max_life": 7,
-                    "color": random.choice([(255, 60, 30), (255, 140, 0), (255, 220, 0)]),
-                    "type": "thrust",
-                    "size": random.choice([1, 2])
-                })
-        elif pstyle == "laser":
-            # Cyan energy discharge specks floating from emitter ends
-            for ex in (x1 + 2, x2 - 2):
-                if random.random() < 0.6:
-                    self.particles.append({
-                        "x": ex,
-                        "y": y + random.uniform(0, self.paddle_h),
-                        "vx": random.uniform(-1.0, 1.0),
-                        "vy": random.uniform(-1.5, -0.2),
-                        "life": random.randint(4, 8),
-                        "max_life": 8,
-                        "color": random.choice([(0, 245, 255), (180, 255, 255), (255, 255, 255)]),
-                        "type": "energy",
-                        "size": 1
-                    })
-        elif pstyle == "cyber":
-            # Pulsing neon digital pixels drifting up
-            if random.random() < 0.7:
-                rx = random.uniform(x1 + 6, x2 - 6)
-                self.particles.append({
-                    "x": rx,
-                    "y": y - 1,
-                    "vx": random.uniform(-0.3, 0.3),
-                    "vy": random.uniform(-1.6, -0.6),
-                    "life": random.randint(5, 9),
-                    "max_life": 9,
-                    "color": random.choice([(210, 80, 255), (0, 255, 200), (255, 255, 255)]),
-                    "type": "pixel",
-                    "size": 1
-                })
-        elif pstyle == "retro":
-            # 8-bit arcade CRT scanline dust motes floating up
-            if random.random() < 0.65:
-                rx = random.uniform(x1 + 8, x2 - 8)
-                self.particles.append({
-                    "x": rx,
-                    "y": y - 1,
-                    "vx": random.uniform(-0.4, 0.4),
-                    "vy": random.uniform(-1.5, -0.4),
-                    "life": random.randint(5, 9),
-                    "max_life": 9,
-                    "color": random.choice([(255, 215, 0), (235, 130, 60), (255, 255, 255)]),
-                    "type": "pixel",
-                    "size": random.choice([1, 2])
-                })
-
     def spawn_particles(self, x, y, count=8, is_trail=False):
-        elem = self.skin["element"]
-        if elem == "none":
-            return
+        new_p = create_ball_particles(self.skin, x, y, count=count, is_trail=is_trail)
+        if new_p:
+            self.particles.extend(new_p)
 
-        colors = self.skin["particle_colors"]
-
-        for _ in range(count):
-            color = random.choice(colors)
-            if elem == "fire":
-                # Upward flickering sparks and rising embers
-                vx = random.uniform(-1.8, 1.8)
-                vy = random.uniform(-3.5, -0.5) if not is_trail else random.uniform(-2.0, 0.5)
-                life = random.randint(6, 12)
-                p_type = "spark" if random.random() < 0.6 else "ember"
-                size = random.choice([1, 2])
-            elif elem == "ice":
-                # Drifting flakes and tumbling frost crystals
-                vx = random.uniform(-1.2, 1.2)
-                vy = random.uniform(0.5, 2.2) if not is_trail else random.uniform(-0.8, 1.2)
-                life = random.randint(8, 16)
-                p_type = "snowflake" if random.random() < 0.5 else "crystal"
-                size = random.choice([2, 3])
-            elif elem == "lightning":
-                # Jagged electric zap particles
-                vx = random.uniform(-3.5, 3.5)
-                vy = random.uniform(-3.5, 3.5)
-                life = random.randint(4, 7)
-                p_type = "zap"
-                size = random.choice([1, 2])
-            elif elem == "poison":
-                # Floating toxic bubbles that waft upwards
-                vx = random.uniform(-1.0, 1.0)
-                vy = random.uniform(-2.0, -0.4)
-                life = random.randint(9, 15)
-                p_type = "bubble"
-                size = random.choice([2, 3])
-            else:
-                # Neutral physical debris
-                vx = random.uniform(-2.2, 2.2)
-                vy = random.uniform(-2.2, 2.2)
-                life = random.randint(5, 9)
-                p_type = "debris"
-                size = 1
-
-            self.particles.append({
-                "x": x, "y": y,
-                "vx": vx, "vy": vy,
-                "life": life,
-                "max_life": life,
-                "color": color,
-                "type": p_type,
-                "size": size
-            })
+    def spawn_paddle_particles(self):
+        new_p = create_paddle_particles(self.paddle_skin, self.paddle_x, self.paddle_y, self.paddle_w, self.paddle_h)
+        if new_p:
+            self.particles.extend(new_p)
 
     def step(self):
         self.sim_steps += 1
 
-        elem = self.skin["element"]
-        for p in self.particles:
-            p["x"] += p["vx"]
-            p["y"] += p["vy"]
-
-            # Physics behaviors tailored to element
-            if p["type"] in ("spark", "ember"):
-                p["vy"] += 0.08  # mild gravity after initial rise
-                p["vx"] *= 0.95
-            elif p["type"] in ("snowflake", "crystal"):
-                p["x"] += math.sin(self.sim_steps * 0.2 + p["life"]) * 0.4  # organic flutter
-            elif p["type"] == "bubble":
-                p["x"] += math.cos(self.sim_steps * 0.15) * 0.3
-            elif p["type"] == "zap":
-                p["vx"] += random.uniform(-0.6, 0.6)
-                p["vy"] += random.uniform(-0.6, 0.6)
-
-            p["life"] -= 1
-        self.particles = [p for p in self.particles if p["life"] > 0]
+        self.particles = update_particles(self.particles, self.sim_steps)
 
         # Spawn ambient trail particles behind the ball in flight
         if self.state == "playing" and self.sim_steps % 2 == 0:
@@ -258,20 +99,7 @@ class BrickBreakerEngine:
             self.spawn_paddle_particles()
 
         # Update animated theme ambient background items
-        effect = self.theme.get("bg_effect")
-        if effect == "starfield":
-            for s in self.ambient_items:
-                s["brightness"] = (math.sin(self.sim_steps * s["speed"] + s["x"]) + 1) / 2
-        elif effect == "mario_sky":
-            for c in self.ambient_items:
-                c["x"] += c["speed"]
-                if c["x"] > self.canvas_w + 60:
-                    c["x"] = -100
-        elif effect == "matrix_rain":
-            for col in self.ambient_items:
-                col["y"] += col["speed"]
-                if col["y"] > self.canvas_h + 30:
-                    col["y"] = -random.uniform(10, 40)
+        update_ambient_effects(self.ambient_items, self.theme.get("bg_effect"), self.sim_steps, self.canvas_w, self.canvas_h)
 
         # Update motion trail
         if self.state == "playing":
@@ -396,21 +224,18 @@ class BrickBreakerEngine:
                 del self.bricks[(r, c)]
                 self.spawn_particles((bx1 + bx2) / 2, (by1 + by2) / 2, count=10)
 
-                prev_x = self.ball_x - self.vx
-                prev_y = self.ball_y - self.vy
+                # Determine impact normal vector
+                overlap_l = (self.ball_x + self.ball_r) - bx1
+                overlap_r = bx2 - (self.ball_x - self.ball_r)
+                overlap_t = (self.ball_y + self.ball_r) - by1
+                overlap_b = by2 - (self.ball_y - self.ball_r)
 
-                if prev_x + self.ball_r <= bx1:
-                    self.ball_x = bx1 - self.ball_r
-                    self.vx = -abs(self.vx)
-                elif prev_x - self.ball_r >= bx2:
-                    self.ball_x = bx2 + self.ball_r
-                    self.vx = abs(self.vx)
-                elif prev_y + self.ball_r <= by1:
-                    self.ball_y = by1 - self.ball_r
-                    self.vy = -abs(self.vy)
+                min_overlap = min(overlap_l, overlap_r, overlap_t, overlap_b)
+
+                if min_overlap == overlap_l or min_overlap == overlap_r:
+                    self.vx = -self.vx
                 else:
-                    self.ball_y = by2 + self.ball_r
-                    self.vy = abs(self.vy)
+                    self.vy = -self.vy
 
                 # Brick collision deflection with natural reflection + organic angular perturbation
                 angle_perturb = random.uniform(-0.35, 0.35)
