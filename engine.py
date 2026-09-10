@@ -2,7 +2,7 @@ import math
 import random
 
 class BrickBreakerEngine:
-    def __init__(self, grid, canvas_w=520, canvas_h=260, cell_w=34, cell_h=13, margin_x=22, margin_y=30):
+    def __init__(self, grid, canvas_w=520, canvas_h=260, cell_w=48, cell_h=14, margin_x=20, margin_y=30):
         self.grid = grid
         self.rows = len(grid)
         self.cols = len(grid[0])
@@ -21,36 +21,44 @@ class BrickBreakerEngine:
         self.paddle_x = canvas_w / 2 - self.paddle_w / 2
 
         self.ball_r = 4
-        self.speed = 13.0
+        self.speed = 10.5
         self.lives = 3
         self.state = "playing"  # playing, life_lost, game_over, win
         self.state_timer = 0
         self.particles = []
         self.sim_steps = 0
-        self.consecutive_brick_bounces = 0
+        self.miss_this_round = False
+        self.has_missed_once = False
 
         self.reset_ball()
 
     def reset_ball(self):
         self.ball_x = self.paddle_x + self.paddle_w / 2
         self.ball_y = self.paddle_y - self.ball_r - 4
-        angle = -random.uniform(math.pi * 0.35, math.pi * 0.65)
+        # Sudut acak lebar ke kiri atau kanan (30° s.d. 150°)
+        angle = -random.uniform(math.radians(30), math.radians(150))
         self.vx = self.speed * math.cos(angle)
         self.vy = self.speed * math.sin(angle)
-        self.consecutive_brick_bounces = 0
+        # Sengaja buat bola jatuh 1 kali di awal untuk efek dramatis
+        if not self.has_missed_once and len(self.bricks) < self.total_bricks * 0.85:
+            self.miss_this_round = True
+            self.has_missed_once = True
+        else:
+            self.miss_this_round = False
 
     def spawn_particles(self, x, y, color):
-        for _ in range(5):
+        for _ in range(6):
             self.particles.append({
                 "x": x, "y": y,
                 "vx": random.uniform(-2.5, 2.5),
                 "vy": random.uniform(-2.5, 2.5),
-                "life": 6,
+                "life": 8,
                 "color": color
             })
 
     def step(self):
         self.sim_steps += 1
+
         for p in self.particles:
             p["x"] += p["vx"]
             p["y"] += p["vy"]
@@ -59,7 +67,7 @@ class BrickBreakerEngine:
 
         if self.state in ("life_lost", "game_over", "win"):
             self.state_timer += 1
-            if self.state == "life_lost" and self.state_timer > 6:
+            if self.state == "life_lost" and self.state_timer > 10:
                 self.reset_ball()
                 self.state = "playing"
                 self.state_timer = 0
@@ -84,23 +92,30 @@ class BrickBreakerEngine:
 
         # AI Paddle
         target_px = self.ball_x - self.paddle_w / 2
-        if self.sim_steps == 75 and self.lives > 1:
-            target_px += 90  # Sengaja bikin bola jatuh 1x di awal
+        if self.miss_this_round and self.vy > 0 and self.ball_y > 140:
+            target_px += 80 if self.ball_x > self.canvas_w / 2 else -80
+            lerp_speed = 0.35
+        else:
+            lerp_speed = 0.85
 
-        self.paddle_x += (target_px - self.paddle_x) * 0.85
+        self.paddle_x += (target_px - self.paddle_x) * lerp_speed
         self.paddle_x = max(self.margin_x, min(self.canvas_w - self.margin_x - self.paddle_w, self.paddle_x))
 
-        # Pantulan dayung
-        if self.vy > 0 and (self.paddle_y - 3 <= self.ball_y + self.ball_r <= self.paddle_y + self.paddle_h + 4):
-            if self.paddle_x - 6 <= self.ball_x <= self.paddle_x + self.paddle_w + 6:
+        # Pantulan dayung: arahkan bola langsung ke balok target yang ada
+        if self.vy > 0 and (self.paddle_y - 2 <= self.ball_y + self.ball_r <= self.paddle_y + self.paddle_h + 4):
+            if self.paddle_x - 4 <= self.ball_x <= self.paddle_x + self.paddle_w + 4:
                 self.vy = -abs(self.vy)
-                self.consecutive_brick_bounces = 0
                 if self.bricks:
-                    # Incar balok terdekat
-                    target_b = min(self.bricks.keys(), key=lambda b: (self.margin_x + b[1] * self.cell_w - self.paddle_x)**2)
-                    bx = self.margin_x + target_b[1] * self.cell_w + self.cell_w / 2
-                    dx = bx - (self.paddle_x + self.paddle_w / 2)
-                    self.vx = max(-11.0, min(11.0, dx * 0.12))
+                    # Pilih satu balok acak untuk dibidik langsung
+                    target_b = random.choice(list(self.bricks.keys()))
+                    tx = self.margin_x + target_b[1] * self.cell_w + self.cell_w / 2
+                    ty = self.margin_y + target_b[0] * self.cell_h + self.cell_h / 2
+                    dx = tx - self.ball_x
+                    dy = ty - self.ball_y
+                    dist = math.hypot(dx, dy)
+                    if dist > 0:
+                        self.vx = self.speed * (dx / dist)
+                        self.vy = self.speed * (dy / dist)
                 else:
                     offset = (self.ball_x - (self.paddle_x + self.paddle_w / 2)) / (self.paddle_w / 2)
                     self.vx = self.speed * offset
@@ -108,6 +123,7 @@ class BrickBreakerEngine:
         # Bola jatuh bawah layar
         if self.ball_y - self.ball_r > self.canvas_h:
             self.lives -= 1
+            self.miss_this_round = False
             self.spawn_particles(self.ball_x, self.canvas_h - 10, (255, 100, 100))
             if self.lives <= 0:
                 self.state = "game_over"
@@ -116,30 +132,49 @@ class BrickBreakerEngine:
             self.state_timer = 0
             return
 
-        # Deteksi tabrakan balok (hancur satu per satu)
-        col_hit = int((self.ball_x - self.margin_x) // self.cell_w)
-        row_hit = int((self.ball_y - self.margin_y) // self.cell_h)
-        if 0 <= row_hit < self.rows and 0 <= col_hit < self.cols:
-            if (row_hit, col_hit) in self.bricks:
-                bx = self.margin_x + col_hit * self.cell_w + self.cell_w / 2
-                by = self.margin_y + row_hit * self.cell_h + self.cell_h / 2
-                self.spawn_particles(bx, by, (57, 211, 83))
-                del self.bricks[(row_hit, col_hit)]
-                self.consecutive_brick_bounces += 1
+        # Deteksi tabrakan balok
+        for (r, c) in list(self.bricks.keys()):
+            bx1 = self.margin_x + c * self.cell_w
+            by1 = self.margin_y + r * self.cell_h
+            bx2 = bx1 + self.cell_w
+            by2 = by1 + self.cell_h
 
-                # Cari balok di sekitar (atas/samping) untuk memantulkan bola ke balok tersebut
-                nearby = [k for k in self.bricks.keys() if abs(k[0] - row_hit) <= 1 and abs(k[1] - col_hit) <= 1]
-                if nearby and self.consecutive_brick_bounces < 4:
-                    # Pantulkan bola ke arah balok tetangga (tidak langsung jatuh ke bawah)
-                    nb = random.choice(nearby)
-                    target_x = self.margin_x + nb[1] * self.cell_w + self.cell_w / 2
-                    target_y = self.margin_y + nb[0] * self.cell_h + self.cell_h / 2
-                    angle = math.atan2(target_y - self.ball_y, target_x - self.ball_x)
-                    self.vx = self.speed * math.cos(angle)
-                    self.vy = self.speed * math.sin(angle)
+            if (bx1 - self.ball_r <= self.ball_x <= bx2 + self.ball_r and
+                by1 - self.ball_r <= self.ball_y <= by2 + self.ball_r):
+
+                del self.bricks[(r, c)]
+                self.spawn_particles((bx1 + bx2) / 2, (by1 + by2) / 2, (57, 211, 83))
+
+                # Kunci tepi agar tidak tembus
+                prev_x = self.ball_x - self.vx
+                prev_y = self.ball_y - self.vy
+
+                if prev_x + self.ball_r <= bx1:
+                    self.ball_x = bx1 - self.ball_r
+                    self.vx = -abs(self.vx)
+                elif prev_x - self.ball_r >= bx2:
+                    self.ball_x = bx2 + self.ball_r
+                    self.vx = abs(self.vx)
+                elif prev_y + self.ball_r <= by1:
+                    self.ball_y = by1 - self.ball_r
+                    self.vy = -abs(self.vy)
                 else:
-                    self.vy = -self.vy
+                    self.ball_y = by2 + self.ball_r
+                    self.vy = abs(self.vy)
+
+                # Peluang memantul berantai ke balok lain
+                if self.bricks and random.random() < 0.60:
+                    nb = random.choice(list(self.bricks.keys()))
+                    tx = self.margin_x + nb[1] * self.cell_w + self.cell_w / 2
+                    ty = self.margin_y + nb[0] * self.cell_h + self.cell_h / 2
+                    dx = tx - self.ball_x
+                    dy = ty - self.ball_y
+                    dist = math.hypot(dx, dy)
+                    if dist > 0:
+                        self.vx = self.speed * (dx / dist)
+                        self.vy = self.speed * (dy / dist)
 
                 if len(self.bricks) == 0:
                     self.state = "win"
                     self.state_timer = 0
+                break

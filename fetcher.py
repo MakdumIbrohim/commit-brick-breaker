@@ -30,8 +30,8 @@ def fetch_contributions(username, token=None):
             with urllib.request.urlopen(req) as resp:
                 data = json.loads(resp.read().decode())
                 weeks = data["data"]["user"]["contributionsCollection"]["contributionCalendar"]["weeks"]
-                # Ambil 14 minggu terakhir agar layout balok pas dan bisa tuntas dihancurkan
-                recent = weeks[-14:]
+                # Ambil 10 minggu terakhir agar total balok pas (~30-40 balok) dan pasti tuntas hancur dalam 1 siklus GIF
+                recent = weeks[-10:]
                 grid = []
                 for d in range(7):
                     row = []
@@ -46,4 +46,4 @@ def fetch_contributions(username, token=None):
             print(f"Fetch failed ({e}), using fallback grid.")
 
     random.seed(42)
-    return [[random.choice([0, 1, 2, 4]) for _ in range(14)] for _ in range(7)]
+    return [[random.choice([0, 1, 2, 4]) for _ in range(10)] for _ in range(7)]

@@ -4,6 +4,7 @@ BG_COLOR = (13, 17, 23)
 PADDLE_COLOR = (88, 166, 255)
 BALL_COLOR = (240, 246, 252)
 EMPTY_BRICK = (22, 27, 34)
+HEART_COLOR = (255, 107, 107)
 
 def get_brick_color(count):
     if count == 0:
@@ -16,16 +17,32 @@ def get_brick_color(count):
         return (38, 166, 65)
     return (57, 211, 83)
 
+def draw_heart(draw, cx, cy, size=5):
+    coords = [
+        (cx, cy + size),
+        (cx - size, cy),
+        (cx - size, cy - size // 2),
+        (cx - size // 2, cy - size),
+        (cx, cy - size // 2),
+        (cx + size // 2, cy - size),
+        (cx + size, cy - size // 2),
+        (cx + size, cy),
+    ]
+    draw.polygon(coords, fill=HEART_COLOR)
+
 def render_frame(engine):
     img = Image.new("RGB", (engine.canvas_w, engine.canvas_h), BG_COLOR)
     draw = ImageDraw.Draw(img)
 
     score = engine.total_bricks - len(engine.bricks)
-    lives_text = "♥ " * max(0, engine.lives)
 
     # Header info
     draw.text((engine.margin_x, 8), f"SCORE: {score}/{engine.total_bricks}", fill=(139, 148, 158))
-    draw.text((engine.canvas_w - engine.margin_x - 70, 8), lives_text, fill=(248, 81, 73))
+
+    # Nyawa icon love
+    heart_start_x = engine.canvas_w - engine.margin_x - (engine.lives * 16)
+    for i in range(max(0, engine.lives)):
+        draw_heart(draw, heart_start_x + i * 16, 14, size=5)
 
     # Draw bricks
     for r in range(engine.rows):
@@ -45,7 +62,7 @@ def render_frame(engine):
         radius=3, fill=PADDLE_COLOR
     )
 
-    # Draw ball (jika tidak sedang game over atau bola jatuh)
+    # Draw ball
     if engine.state in ("playing", "win") or (engine.state == "life_lost" and engine.state_timer > 3):
         draw.ellipse(
             [engine.ball_x - engine.ball_r, engine.ball_y - engine.ball_r,
@@ -53,7 +70,7 @@ def render_frame(engine):
             fill=BALL_COLOR
         )
 
-    # Banner teks status akhir
+    # Status banner
     if engine.state == "win":
         draw.rectangle([engine.canvas_w / 2 - 90, engine.canvas_h / 2 - 18, engine.canvas_w / 2 + 90, engine.canvas_h / 2 + 18], fill=(22, 27, 34))
         draw.text((engine.canvas_w / 2 - 60, engine.canvas_h / 2 - 8), "STAGE CLEARED!", fill=(57, 211, 83))
@@ -63,24 +80,25 @@ def render_frame(engine):
 
     return img
 
-def render_gif(engine, output_path="game.gif", max_frames=300):
+def render_gif(engine, output_path="game.gif", max_frames=800):
     frames = []
-    # Jalankan simulasi hingga semua balok hancur (win) atau game over, lalu tahan frame kemenangan
-    hold_frames = 0
-    for _ in range(max_frames):
+    # Jalan terus sampai balok benar-benar 0 (habis semua)
+    while len(engine.bricks) > 0 and len(frames) < max_frames:
         engine.step()
         frames.append(render_frame(engine))
-        if engine.state in ("win", "game_over"):
-            hold_frames += 1
-            if hold_frames >= 25:  # Tahan banner kemenangan/kekalahan sebentar sebelum looping
-                break
+
+    # Tahan banner kemenangan beberapa frame sebelum animasi loop ke awal
+    engine.state = "win"
+    for _ in range(25):
+        engine.step()
+        frames.append(render_frame(engine))
 
     frames[0].save(
         output_path,
         save_all=True,
         append_images=frames[1:],
-        duration=35,
+        duration=38,
         loop=0,
         optimize=True
     )
-    print(f"Generated {output_path} ({len(frames)} frames), cleared: {len(engine.bricks) == 0}")
+    print(f"Generated {output_path} ({len(frames)} frames), remaining bricks: {len(engine.bricks)}")
