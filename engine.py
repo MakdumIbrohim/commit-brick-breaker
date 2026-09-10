@@ -21,13 +21,13 @@ class BrickBreakerEngine:
         self.paddle_x = canvas_w / 2 - self.paddle_w / 2
 
         self.ball_r = 4
-        self.speed = 12.0
+        self.speed = 13.0
         self.lives = 3
         self.state = "playing"  # playing, life_lost, game_over, win
         self.state_timer = 0
         self.particles = []
         self.sim_steps = 0
-        self.target_clear_steps = 180  # Selesaikan seluruh balok dalam durasi animasi ideal
+        self.consecutive_brick_bounces = 0
 
         self.reset_ball()
 
@@ -37,13 +37,14 @@ class BrickBreakerEngine:
         angle = -random.uniform(math.pi * 0.35, math.pi * 0.65)
         self.vx = self.speed * math.cos(angle)
         self.vy = self.speed * math.sin(angle)
+        self.consecutive_brick_bounces = 0
 
     def spawn_particles(self, x, y, color):
         for _ in range(5):
             self.particles.append({
                 "x": x, "y": y,
-                "vx": random.uniform(-3, 3),
-                "vy": random.uniform(-3, 3),
+                "vx": random.uniform(-2.5, 2.5),
+                "vy": random.uniform(-2.5, 2.5),
                 "life": 6,
                 "color": color
             })
@@ -68,7 +69,7 @@ class BrickBreakerEngine:
         self.ball_x += self.vx
         self.ball_y += self.vy
 
-        # Pantulan dinding
+        # Pantulan dinding kiri/kanan
         if self.ball_x - self.ball_r <= self.margin_x:
             self.ball_x = self.margin_x + self.ball_r
             self.vx = abs(self.vx)
@@ -76,34 +77,35 @@ class BrickBreakerEngine:
             self.ball_x = self.canvas_w - self.margin_x - self.ball_r
             self.vx = -abs(self.vx)
 
+        # Pantulan dinding atas
         if self.ball_y - self.ball_r <= 10:
             self.ball_y = 10 + self.ball_r
             self.vy = abs(self.vy)
 
-        # AI Paddle pintar
+        # AI Paddle
         target_px = self.ball_x - self.paddle_w / 2
-        # Buat bola jatuh 1 kali di tengah permainan untuk efek dramatis bola jatuh
-        if self.sim_steps == 70 and self.lives > 1:
-            target_px += 80  # Miskalkulasi disengaja agar bola jatuh ke bawah
+        if self.sim_steps == 75 and self.lives > 1:
+            target_px += 90  # Sengaja bikin bola jatuh 1x di awal
 
-        self.paddle_x += (target_px - self.paddle_x) * 0.8
+        self.paddle_x += (target_px - self.paddle_x) * 0.85
         self.paddle_x = max(self.margin_x, min(self.canvas_w - self.margin_x - self.paddle_w, self.paddle_x))
 
         # Pantulan dayung
         if self.vy > 0 and (self.paddle_y - 3 <= self.ball_y + self.ball_r <= self.paddle_y + self.paddle_h + 4):
             if self.paddle_x - 6 <= self.ball_x <= self.paddle_x + self.paddle_w + 6:
                 self.vy = -abs(self.vy)
+                self.consecutive_brick_bounces = 0
                 if self.bricks:
-                    # Arahkan pantulan ke salah satu balok aktif
+                    # Incar balok terdekat
                     target_b = min(self.bricks.keys(), key=lambda b: (self.margin_x + b[1] * self.cell_w - self.paddle_x)**2)
                     bx = self.margin_x + target_b[1] * self.cell_w + self.cell_w / 2
                     dx = bx - (self.paddle_x + self.paddle_w / 2)
-                    self.vx = max(-10.0, min(10.0, dx * 0.12))
+                    self.vx = max(-11.0, min(11.0, dx * 0.12))
                 else:
                     offset = (self.ball_x - (self.paddle_x + self.paddle_w / 2)) / (self.paddle_w / 2)
                     self.vx = self.speed * offset
 
-        # Bola jatuh bawah layar (animasi bola jatuh)
+        # Bola jatuh bawah layar
         if self.ball_y - self.ball_r > self.canvas_h:
             self.lives -= 1
             self.spawn_particles(self.ball_x, self.canvas_h - 10, (255, 100, 100))
@@ -114,7 +116,7 @@ class BrickBreakerEngine:
             self.state_timer = 0
             return
 
-        # Tabrakan balok
+        # Deteksi tabrakan balok (hancur satu per satu)
         col_hit = int((self.ball_x - self.margin_x) // self.cell_w)
         row_hit = int((self.ball_y - self.margin_y) // self.cell_h)
         if 0 <= row_hit < self.rows and 0 <= col_hit < self.cols:
@@ -123,17 +125,21 @@ class BrickBreakerEngine:
                 by = self.margin_y + row_hit * self.cell_h + self.cell_h / 2
                 self.spawn_particles(bx, by, (57, 211, 83))
                 del self.bricks[(row_hit, col_hit)]
+                self.consecutive_brick_bounces += 1
 
-                # Komputasi laju penghancuran dinamis agar tuntas sebelum max frame
-                fraction_time = min(1.0, self.sim_steps / self.target_clear_steps)
-                expected_remaining = int(self.total_bricks * (1.0 - fraction_time))
-                while len(self.bricks) > expected_remaining:
-                    # Hancurkan balok terdekat di sekitar hantaman (multi-break combo)
-                    candidates = sorted(self.bricks.keys(), key=lambda k: (k[0] - row_hit)**2 + (k[1] - col_hit)**2)
-                    if candidates:
-                        del self.bricks[candidates[0]]
+                # Cari balok di sekitar (atas/samping) untuk memantulkan bola ke balok tersebut
+                nearby = [k for k in self.bricks.keys() if abs(k[0] - row_hit) <= 1 and abs(k[1] - col_hit) <= 1]
+                if nearby and self.consecutive_brick_bounces < 4:
+                    # Pantulkan bola ke arah balok tetangga (tidak langsung jatuh ke bawah)
+                    nb = random.choice(nearby)
+                    target_x = self.margin_x + nb[1] * self.cell_w + self.cell_w / 2
+                    target_y = self.margin_y + nb[0] * self.cell_h + self.cell_h / 2
+                    angle = math.atan2(target_y - self.ball_y, target_x - self.ball_x)
+                    self.vx = self.speed * math.cos(angle)
+                    self.vy = self.speed * math.sin(angle)
+                else:
+                    self.vy = -self.vy
 
-                self.vy = -self.vy
                 if len(self.bricks) == 0:
                     self.state = "win"
                     self.state_timer = 0
