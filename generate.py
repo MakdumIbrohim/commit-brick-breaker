@@ -1,8 +1,8 @@
 import os
 import sys
-from fetcher import fetch_contributions
-from engine import BrickBreakerEngine
-from renderer import render_gif
+from src.fetcher import fetch_contributions
+from src.engine import BrickBreakerEngine
+from src.renderer import render_gif
 
 def main():
     username = sys.argv[1] if len(sys.argv) > 1 else os.getenv("GITHUB_ACTOR", "MakdumIbrohim")

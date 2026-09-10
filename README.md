@@ -13,9 +13,10 @@ Animasi retro game penghancur balok (Brick Breaker / Arkanoid) yang dibuat otoma
 
 ## Struktur Modul
 
-- `fetcher.py`: Mengambil data kontribusi pengguna dari GitHub GraphQL API (dengan fallback grid acak bila offline/tanpa token).
-- `engine.py`: Logika fisika bola, dayung kontrol AI, deteksi tabrakan dinding, dan kalkulasi balok hancur.
-- `renderer.py`: Render grafis frame per frame dan ekspor hasil akhir ke format animasi GIF.
+- `src/config.py`: Konstanta konfigurasi canvas, warna, dan fisika game.
+- `src/fetcher.py`: Mengambil data kontribusi pengguna dari GitHub GraphQL API (1 Januari sampai sekarang).
+- `src/engine.py`: Logika fisika bola, dayung kontrol AI, deteksi tabrakan dinding, dan kalkulasi balok hancur.
+- `src/renderer.py`: Render grafis frame per frame dan ekspor hasil akhir ke format animasi GIF.
 - `generate.py`: Entrypoint utama CLI untuk eksekusi proses pembuatan animasi.
 
 ---

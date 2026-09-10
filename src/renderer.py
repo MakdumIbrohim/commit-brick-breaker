@@ -1,10 +1,9 @@
 from PIL import Image, ImageDraw
-
-BG_COLOR = (13, 17, 23)
-PADDLE_COLOR = (88, 166, 255)
-BALL_COLOR = (240, 246, 252)
-EMPTY_BRICK = (22, 27, 34)
-HEART_COLOR = (255, 107, 107)
+from src.config import (
+    BG_COLOR, PADDLE_COLOR, BALL_COLOR, EMPTY_BRICK,
+    HEART_COLOR, SCORE_TEXT_COLOR, BANNER_BG_COLOR,
+    WIN_TEXT_COLOR, LOSE_TEXT_COLOR
+)
 
 def get_brick_color(count):
     if count == 0:
@@ -18,7 +17,6 @@ def get_brick_color(count):
     return (57, 211, 83)
 
 def draw_heart(draw, cx, cy, size=5):
-    # Vector heart polygon coordinates centered at (cx, cy)
     coords = [
         (cx, cy + size),
         (cx - size, cy),
@@ -36,7 +34,7 @@ def render_frame(engine):
     draw = ImageDraw.Draw(img)
 
     score = engine.total_bricks - len(engine.bricks)
-    draw.text((engine.margin_x, 8), f"SCORE: {score}/{engine.total_bricks}", fill=(139, 148, 158))
+    draw.text((engine.margin_x, 8), f"SCORE: {score}/{engine.total_bricks}", fill=SCORE_TEXT_COLOR)
 
     # Render remaining life hearts
     heart_start_x = engine.canvas_w - engine.margin_x - (engine.lives * 16)
@@ -71,11 +69,11 @@ def render_frame(engine):
 
     # Game status banners
     if engine.state == "win":
-        draw.rectangle([engine.canvas_w / 2 - 90, engine.canvas_h / 2 - 18, engine.canvas_w / 2 + 90, engine.canvas_h / 2 + 18], fill=(22, 27, 34))
-        draw.text((engine.canvas_w / 2 - 60, engine.canvas_h / 2 - 8), "STAGE CLEARED!", fill=(57, 211, 83))
+        draw.rectangle([engine.canvas_w / 2 - 90, engine.canvas_h / 2 - 18, engine.canvas_w / 2 + 90, engine.canvas_h / 2 + 18], fill=BANNER_BG_COLOR)
+        draw.text((engine.canvas_w / 2 - 60, engine.canvas_h / 2 - 8), "STAGE CLEARED!", fill=WIN_TEXT_COLOR)
     elif engine.state == "game_over":
-        draw.rectangle([engine.canvas_w / 2 - 80, engine.canvas_h / 2 - 18, engine.canvas_w / 2 + 80, engine.canvas_h / 2 + 18], fill=(22, 27, 34))
-        draw.text((engine.canvas_w / 2 - 45, engine.canvas_h / 2 - 8), "GAME OVER", fill=(248, 81, 73))
+        draw.rectangle([engine.canvas_w / 2 - 80, engine.canvas_h / 2 - 18, engine.canvas_w / 2 + 80, engine.canvas_h / 2 + 18], fill=BANNER_BG_COLOR)
+        draw.text((engine.canvas_w / 2 - 45, engine.canvas_h / 2 - 8), "GAME OVER", fill=LOSE_TEXT_COLOR)
 
     return img
 

@@ -1,0 +1,22 @@
+# Display and Canvas Configuration
+CANVAS_W = 640
+CANVAS_H = 280
+MARGIN_X = 16
+MARGIN_Y = 28
+
+# Gameplay & Physics Configuration
+PADDLE_H = 8
+BALL_R = 4
+BALL_SPEED = 10.5
+INITIAL_LIVES = 3
+
+# Visual Colors (GitHub Dark Theme Palette)
+BG_COLOR = (13, 17, 23)
+PADDLE_COLOR = (88, 166, 255)
+BALL_COLOR = (240, 246, 252)
+EMPTY_BRICK = (22, 27, 34)
+HEART_COLOR = (255, 107, 107)
+SCORE_TEXT_COLOR = (139, 148, 158)
+BANNER_BG_COLOR = (22, 27, 34)
+WIN_TEXT_COLOR = (57, 211, 83)
+LOSE_TEXT_COLOR = (248, 81, 73)

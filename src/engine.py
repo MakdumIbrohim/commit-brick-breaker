@@ -1,8 +1,12 @@
 import math
 import random
+from src.config import (
+    CANVAS_W, CANVAS_H, MARGIN_X, MARGIN_Y,
+    PADDLE_H, BALL_R, BALL_SPEED, INITIAL_LIVES
+)
 
 class BrickBreakerEngine:
-    def __init__(self, grid, canvas_w=640, canvas_h=280, margin_x=16, margin_y=28):
+    def __init__(self, grid, canvas_w=CANVAS_W, canvas_h=CANVAS_H, margin_x=MARGIN_X, margin_y=MARGIN_Y):
         self.initial_grid = [row[:] for row in grid]
         self.rows = len(grid)
         self.cols = len(grid[0])
@@ -17,10 +21,10 @@ class BrickBreakerEngine:
         self.cell_h = 13
 
         self.paddle_w = max(55, min(75, canvas_w * 0.12))
-        self.paddle_h = 8
+        self.paddle_h = PADDLE_H
         self.paddle_y = canvas_h - 25
-        self.ball_r = 4
-        self.speed = 10.5
+        self.ball_r = BALL_R
+        self.speed = BALL_SPEED
 
         self.reset_game()
 
@@ -28,7 +32,7 @@ class BrickBreakerEngine:
         self.grid = [row[:] for row in self.initial_grid]
         self.bricks = {(r, c): self.grid[r][c] for r in range(self.rows) for c in range(self.cols) if self.grid[r][c] > 0}
         self.total_bricks = len(self.bricks)
-        self.lives = 3
+        self.lives = INITIAL_LIVES
         self.state = "playing"  # playing, life_lost, game_over, win
         self.state_timer = 0
         self.particles = []
