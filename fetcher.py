@@ -46,5 +46,4 @@ def fetch_contributions(username, token=None):
             pass
 
     # Fallback pseudo-random grid if offline or unauthenticated
-    random.seed(42)
     return [[random.choice([0, 1, 2, 4]) for _ in range(10)] for _ in range(7)]

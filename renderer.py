@@ -79,14 +79,14 @@ def render_frame(engine):
 
     return img
 
-def render_gif(engine, output_path="game.gif", max_frames=1200):
+def render_gif(engine, output_path="game.gif", max_frames=2400):
     frames = []
-    # Simulate steps until all bricks are cleared
+    # Jalankan simulasi sampai SELURUH balok hancur (0 tersisa)
     while len(engine.bricks) > 0 and len(frames) < max_frames:
         engine.step()
         frames.append(render_frame(engine))
 
-    # Hold the stage clear banner before repeating the GIF loop
+    # Tampilkan banner STAGE CLEARED! sebelum animasi loop ulang
     engine.state = "win"
     for _ in range(25):
         engine.step()
