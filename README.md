@@ -1,7 +1,7 @@
-# gh-brick-breaker
+# commit-brick-breaker
 
 <p align="center">
-  <img src="game.gif" alt="gh-brick-breaker" />
+  <img src="game.gif" alt="commit-brick-breaker" />
 </p>
 
 ## Panduan Instalasi & Penggunaan
@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: MakdumIbrohim/gh-brick-breaker@main
+      - uses: MakdumIbrohim/commit-brick-breaker@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_user: ${{ github.repository_owner }}
@@ -73,8 +73,8 @@ Untuk menjalankan dan men-generate GIF secara manual di komputer Anda:
 
 1. Clone repositori & install dependensi:
 ```bash
-git clone https://github.com/MakdumIbrohim/gh-brick-breaker.git
-cd gh-brick-breaker
+git clone https://github.com/MakdumIbrohim/commit-brick-breaker.git
+cd commit-brick-breaker
 pip install pillow
 ```
 

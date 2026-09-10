@@ -1,4 +1,4 @@
-name: 'GitHub Brick Breaker'
+name: 'Commit Brick Breaker'
 description: 'Generate animated retro brick breaker game GIF from GitHub contribution graph'
 author: 'MakdumIbrohim'
 inputs:

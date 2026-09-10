@@ -30,7 +30,7 @@ def fetch_contributions(username, token=None):
         req = urllib.request.Request(
             "https://api.github.com/graphql",
             data=json.dumps({"query": query, "variables": variables}).encode("utf-8"),
-            headers={"Authorization": f"Bearer {token}", "User-Agent": "gh-brick-breaker"}
+            headers={"Authorization": f"Bearer {token}", "User-Agent": "commit-brick-breaker"}
         )
         try:
             with urllib.request.urlopen(req) as resp:
