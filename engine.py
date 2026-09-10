@@ -16,35 +16,36 @@ class BrickBreakerEngine:
         self.bricks = {(r, c): grid[r][c] for r in range(self.rows) for c in range(self.cols) if grid[r][c] > 0}
         self.total_bricks = len(self.bricks)
 
-        self.paddle_w, self.paddle_h = 75, 8
+        self.paddle_w, self.paddle_h = 70, 8
         self.paddle_y = canvas_h - 25
         self.paddle_x = canvas_w / 2 - self.paddle_w / 2
 
         self.ball_r = 4
-        self.speed = 10.5
+        self.speed = 10.0
         self.lives = 3
         self.state = "playing"  # playing, life_lost, game_over, win
         self.state_timer = 0
         self.particles = []
         self.sim_steps = 0
-        self.miss_this_round = False
-        self.has_missed_once = False
+        self.miss_active = False
+        self.has_decided_descent = False
 
         self.reset_ball()
 
     def reset_ball(self):
+        # Position paddle and ball randomly in the lower playfield
+        self.paddle_x = random.uniform(self.margin_x + 20, self.canvas_w - self.margin_x - self.paddle_w - 20)
         self.ball_x = self.paddle_x + self.paddle_w / 2
         self.ball_y = self.paddle_y - self.ball_r - 4
-        # Sudut acak lebar ke kiri atau kanan (30° s.d. 150°)
-        angle = -random.uniform(math.radians(30), math.radians(150))
-        self.vx = self.speed * math.cos(angle)
-        self.vy = self.speed * math.sin(angle)
-        # Sengaja buat bola jatuh 1 kali di awal untuk efek dramatis
-        if not self.has_missed_once and len(self.bricks) < self.total_bricks * 0.85:
-            self.miss_this_round = True
-            self.has_missed_once = True
-        else:
-            self.miss_this_round = False
+
+        # Randomize launch angle biased to either upper-left or upper-right
+        launch_deg = random.uniform(-140, -105) if random.random() < 0.5 else random.uniform(-75, -40)
+        rad = math.radians(launch_deg)
+        self.vx = self.speed * math.cos(rad)
+        self.vy = self.speed * math.sin(rad)
+
+        self.miss_active = False
+        self.has_decided_descent = False
 
     def spawn_particles(self, x, y, color):
         for _ in range(6):
@@ -65,19 +66,19 @@ class BrickBreakerEngine:
             p["life"] -= 1
         self.particles = [p for p in self.particles if p["life"] > 0]
 
+        # Delay before ball respawn on life loss
         if self.state in ("life_lost", "game_over", "win"):
             self.state_timer += 1
-            if self.state == "life_lost" and self.state_timer > 10:
+            if self.state == "life_lost" and self.state_timer > 14:
                 self.reset_ball()
                 self.state = "playing"
                 self.state_timer = 0
             return
 
-        # Gerak bola
         self.ball_x += self.vx
         self.ball_y += self.vy
 
-        # Pantulan dinding kiri/kanan
+        # Wall collisions
         if self.ball_x - self.ball_r <= self.margin_x:
             self.ball_x = self.margin_x + self.ball_r
             self.vx = abs(self.vx)
@@ -85,28 +86,34 @@ class BrickBreakerEngine:
             self.ball_x = self.canvas_w - self.margin_x - self.ball_r
             self.vx = -abs(self.vx)
 
-        # Pantulan dinding atas
         if self.ball_y - self.ball_r <= 10:
             self.ball_y = 10 + self.ball_r
             self.vy = abs(self.vy)
 
-        # AI Paddle
-        target_px = self.ball_x - self.paddle_w / 2
-        if self.miss_this_round and self.vy > 0 and self.ball_y > 140:
-            target_px += 80 if self.ball_x > self.canvas_w / 2 else -80
-            lerp_speed = 0.35
-        else:
-            lerp_speed = 0.85
+        # Decide whether paddle intentionally misses descending ball to create realistic life-loss
+        if self.vy > 0 and self.ball_y < 120:
+            if not self.has_decided_descent:
+                self.miss_active = (random.random() < 0.28 and self.lives > 1)
+                self.has_decided_descent = True
+        elif self.vy < 0:
+            self.has_decided_descent = False
+            self.miss_active = False
 
-        self.paddle_x += (target_px - self.paddle_x) * lerp_speed
+        # Paddle tracking
+        if self.miss_active and self.ball_y > 140:
+            evade_target = self.margin_x if self.ball_x > self.canvas_w / 2 else (self.canvas_w - self.margin_x - self.paddle_w)
+            self.paddle_x += (evade_target - self.paddle_x) * 0.4
+        else:
+            target_px = self.ball_x - self.paddle_w / 2
+            self.paddle_x += (target_px - self.paddle_x) * 0.85
+
         self.paddle_x = max(self.margin_x, min(self.canvas_w - self.margin_x - self.paddle_w, self.paddle_x))
 
-        # Pantulan dayung: arahkan bola langsung ke balok target yang ada
+        # Paddle collision
         if self.vy > 0 and (self.paddle_y - 2 <= self.ball_y + self.ball_r <= self.paddle_y + self.paddle_h + 4):
-            if self.paddle_x - 4 <= self.ball_x <= self.paddle_x + self.paddle_w + 4:
+            if self.paddle_x - 3 <= self.ball_x <= self.paddle_x + self.paddle_w + 3:
                 self.vy = -abs(self.vy)
                 if self.bricks:
-                    # Pilih satu balok acak untuk dibidik langsung
                     target_b = random.choice(list(self.bricks.keys()))
                     tx = self.margin_x + target_b[1] * self.cell_w + self.cell_w / 2
                     ty = self.margin_y + target_b[0] * self.cell_h + self.cell_h / 2
@@ -120,10 +127,9 @@ class BrickBreakerEngine:
                     offset = (self.ball_x - (self.paddle_x + self.paddle_w / 2)) / (self.paddle_w / 2)
                     self.vx = self.speed * offset
 
-        # Bola jatuh bawah layar
+        # Ball missed floor
         if self.ball_y - self.ball_r > self.canvas_h:
             self.lives -= 1
-            self.miss_this_round = False
             self.spawn_particles(self.ball_x, self.canvas_h - 10, (255, 100, 100))
             if self.lives <= 0:
                 self.state = "game_over"
@@ -132,7 +138,7 @@ class BrickBreakerEngine:
             self.state_timer = 0
             return
 
-        # Deteksi tabrakan balok
+        # Discrete brick collision using AABB edge clamping
         for (r, c) in list(self.bricks.keys()):
             bx1 = self.margin_x + c * self.cell_w
             by1 = self.margin_y + r * self.cell_h
@@ -145,10 +151,10 @@ class BrickBreakerEngine:
                 del self.bricks[(r, c)]
                 self.spawn_particles((bx1 + bx2) / 2, (by1 + by2) / 2, (57, 211, 83))
 
-                # Kunci tepi agar tidak tembus
                 prev_x = self.ball_x - self.vx
                 prev_y = self.ball_y - self.vy
 
+                # Clamp to nearest collision edge to prevent ball tunneling
                 if prev_x + self.ball_r <= bx1:
                     self.ball_x = bx1 - self.ball_r
                     self.vx = -abs(self.vx)
@@ -162,7 +168,7 @@ class BrickBreakerEngine:
                     self.ball_y = by2 + self.ball_r
                     self.vy = abs(self.vy)
 
-                # Peluang memantul berantai ke balok lain
+                # Probabilistic multi-bounce toward another active brick
                 if self.bricks and random.random() < 0.60:
                     nb = random.choice(list(self.bricks.keys()))
                     tx = self.margin_x + nb[1] * self.cell_w + self.cell_w / 2

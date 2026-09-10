@@ -3,7 +3,7 @@ import json
 import random
 
 def fetch_contributions(username, token=None):
-    # ponytail: GraphQL real GitHub query ceiling, fallback mock grid if offline/no-token
+    # Fetch real contribution matrix via GitHub GraphQL API if token is available
     if token:
         query = """
         query($username: String!) {
@@ -30,7 +30,7 @@ def fetch_contributions(username, token=None):
             with urllib.request.urlopen(req) as resp:
                 data = json.loads(resp.read().decode())
                 weeks = data["data"]["user"]["contributionsCollection"]["contributionCalendar"]["weeks"]
-                # Ambil 10 minggu terakhir agar total balok pas (~30-40 balok) dan pasti tuntas hancur dalam 1 siklus GIF
+                # Use last 10 weeks to balance visual density and guaranteed clear duration
                 recent = weeks[-10:]
                 grid = []
                 for d in range(7):
@@ -42,8 +42,9 @@ def fetch_contributions(username, token=None):
                             row.append(0)
                     grid.append(row)
                 return grid
-        except Exception as e:
-            print(f"Fetch failed ({e}), using fallback grid.")
+        except Exception:
+            pass
 
+    # Fallback pseudo-random grid if offline or unauthenticated
     random.seed(42)
     return [[random.choice([0, 1, 2, 4]) for _ in range(10)] for _ in range(7)]
