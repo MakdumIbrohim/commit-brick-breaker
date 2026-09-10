@@ -2,21 +2,25 @@ import math
 import random
 
 class BrickBreakerEngine:
-    def __init__(self, grid, canvas_w=520, canvas_h=260, cell_w=48, cell_h=14, margin_x=20, margin_y=30):
+    def __init__(self, grid, canvas_w=640, canvas_h=280, margin_x=16, margin_y=28):
         self.initial_grid = [row[:] for row in grid]
-        self.canvas_w = canvas_w
-        self.canvas_h = canvas_h
-        self.cell_w = cell_w
-        self.cell_h = cell_h
-        self.margin_x = margin_x
-        self.margin_y = margin_y
         self.rows = len(grid)
         self.cols = len(grid[0])
+        self.canvas_w = canvas_w
+        self.canvas_h = canvas_h
+        self.margin_x = margin_x
+        self.margin_y = margin_y
 
-        self.paddle_w, self.paddle_h = 70, 8
+        # Scale cell width dynamically to fit all weeks from Jan 1
+        available_w = canvas_w - 2 * margin_x
+        self.cell_w = max(10, available_w / self.cols)
+        self.cell_h = 13
+
+        self.paddle_w = max(55, min(75, canvas_w * 0.12))
+        self.paddle_h = 8
         self.paddle_y = canvas_h - 25
         self.ball_r = 4
-        self.speed = 10.0
+        self.speed = 10.5
 
         self.reset_game()
 

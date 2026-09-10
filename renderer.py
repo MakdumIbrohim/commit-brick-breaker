@@ -79,7 +79,7 @@ def render_frame(engine):
 
     return img
 
-def render_gif(engine, output_path="game.gif", max_frames=2400):
+def render_gif(engine, output_path="game.gif", max_frames=3000):
     frames = []
     # Jalankan simulasi sampai SELURUH balok hancur (0 tersisa)
     while len(engine.bricks) > 0 and len(frames) < max_frames:
