@@ -41,8 +41,8 @@ jobs:
           github_user: ${{ github.repository_owner }}
           output_path: game.gif
           ball_skin: classic # classic | fire | ice | lightning | poison
-          theme: dark # dark | light
-          paddle_skin: default # default | neon | retro | gold | ruby
+          theme: dark # dark | sky | synthwave | matrix
+          paddle_skin: default # default | laser | retro | mecha | cyber
 
       - name: Commit and Push
         run: |
@@ -75,8 +75,10 @@ jobs:
 #### Board Theme Options (`theme`)
 | Option | Preview |
 | :---: | :---: |
-| `dark` (default) | <img src="assets/preview/sample_classic.gif" width="340" alt="dark theme" /> |
-| `light` | <img src="assets/preview/sample_light.gif" width="340" alt="light theme" /> |
+| `dark` (default) | <img src="assets/preview/sample_theme_dark.gif" width="340" alt="dark theme" /> |
+| `sky` | <img src="assets/preview/sample_theme_sky.gif" width="340" alt="sky theme" /> |
+| `synthwave` | <img src="assets/preview/sample_theme_synthwave.gif" width="340" alt="synthwave theme" /> |
+| `matrix` | <img src="assets/preview/sample_theme_matrix.gif" width="340" alt="matrix theme" /> |
 
 2. Enable workflow permissions: Repo **Settings** > **Actions** > **General** > **Workflow permissions** > select **Read and write permissions** > **Save**.
 
@@ -100,7 +102,7 @@ Examples:
 ```bash
 python generate.py MakdumIbrohim game.gif
 python generate.py MakdumIbrohim game.gif fire dark laser
-GITHUB_TOKEN="ghp_xxx" python generate.py MakdumIbrohim game.gif ice light mecha
+GITHUB_TOKEN="ghp_xxx" python generate.py MakdumIbrohim game.gif ice sky mecha
 ```
 
 ---
@@ -136,7 +138,7 @@ jobs:
           github_user: ${{ github.repository_owner }}
           output_path: game.gif
           ball_skin: classic # classic | fire | ice | lightning | poison
-          theme: dark # dark | light
+          theme: dark # dark | sky | synthwave | matrix
           paddle_skin: default # default | laser | retro | mecha | cyber
 
       - name: Commit and Push
@@ -157,6 +159,14 @@ jobs:
 | `retro` | <img src="assets/preview/sample_paddle_retro.gif" width="340" alt="paddle retro" /> |
 | `mecha` | <img src="assets/preview/sample_paddle_mecha.gif" width="340" alt="paddle mecha" /> |
 | `cyber` | <img src="assets/preview/sample_paddle_cyber.gif" width="340" alt="paddle cyber" /> |
+
+#### Pilihan Tema Papan (`theme`)
+| Opsi | Preview |
+| :---: | :---: |
+| `dark` (default) | <img src="assets/preview/sample_theme_dark.gif" width="340" alt="dark theme" /> |
+| `sky` | <img src="assets/preview/sample_theme_sky.gif" width="340" alt="sky theme" /> |
+| `synthwave` | <img src="assets/preview/sample_theme_synthwave.gif" width="340" alt="synthwave theme" /> |
+| `matrix` | <img src="assets/preview/sample_theme_matrix.gif" width="340" alt="matrix theme" /> |
 
 2. Beri izin write: buka repo **Settings** > **Actions** > **General** > **Workflow permissions** > pilih **Read and write permissions** > **Save**.
 
@@ -180,5 +190,5 @@ Contoh pemakaian:
 ```bash
 python generate.py MakdumIbrohim game.gif
 python generate.py MakdumIbrohim game.gif fire dark laser
-GITHUB_TOKEN="ghp_xxx" python generate.py MakdumIbrohim game.gif ice light mecha
+GITHUB_TOKEN="ghp_xxx" python generate.py MakdumIbrohim game.gif ice sky mecha
 ```

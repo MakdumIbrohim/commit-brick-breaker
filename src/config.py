@@ -10,9 +10,15 @@ BALL_R = 4
 BALL_SPEED = 10.5
 INITIAL_LIVES = 3
 
-# Visual Themes (Dark & Light)
+# Visual Themes with animated environmental board effects:
+# - dark: cosmic starfield with twinkling distant stars
+# - sky: Super Mario NES vibrant blue sky with floating clouds
+# - synthwave: 80s neon horizon perspective grid
+# - matrix: digital cyber rain streaming subtly in background
 THEMES = {
     "dark": {
+        "name": "dark",
+        "bg_effect": "starfield",
         "bg_color": (13, 17, 23),
         "paddle_color": (88, 166, 255),
         "empty_brick": (22, 27, 34),
@@ -28,20 +34,58 @@ THEMES = {
             (57, 211, 83)    # 10+ commits
         ]
     },
-    "light": {
-        "bg_color": (255, 255, 255),
-        "paddle_color": (9, 105, 218),
-        "empty_brick": (235, 237, 240),
-        "heart_color": (207, 34, 46),
-        "score_text_color": (87, 96, 106),
-        "banner_bg_color": (246, 248, 250),
-        "win_text_color": (26, 127, 55),
+    "sky": {
+        "name": "sky",
+        "bg_effect": "mario_sky",
+        "bg_color": (107, 140, 255),       # Classic Super Mario NES vibrant sky blue
+        "paddle_color": (230, 75, 50),      # Mario red paddle
+        "empty_brick": (140, 168, 255),     # Semi-translucent sky blue empty cells
+        "heart_color": (255, 60, 60),
+        "score_text_color": (255, 255, 255),
+        "banner_bg_color": (255, 255, 255),
+        "win_text_color": (34, 139, 34),
         "lose_text_color": (207, 34, 46),
         "brick_colors": [
-            (155, 233, 168), # 1-2 commits
-            (64, 196, 99),   # 3-5 commits
-            (48, 161, 78),   # 6-9 commits
-            (33, 110, 57)    # 10+ commits
+            (255, 200, 110), # 1-2 commits (light coin gold)
+            (240, 150, 40),  # 3-5 commits (mario question block orange)
+            (195, 90, 20),   # 6-9 commits (brick block terracotta)
+            (145, 50, 10)    # 10+ commits (hard brick brown)
+        ]
+    },
+    "synthwave": {
+        "name": "synthwave",
+        "bg_effect": "neon_grid",
+        "bg_color": (18, 11, 38),
+        "paddle_color": (255, 0, 128),
+        "empty_brick": (36, 22, 66),
+        "heart_color": (255, 0, 128),
+        "score_text_color": (210, 180, 255),
+        "banner_bg_color": (36, 22, 66),
+        "win_text_color": (0, 255, 204),
+        "lose_text_color": (255, 0, 128),
+        "brick_colors": [
+            (88, 30, 140),
+            (138, 43, 226),
+            (186, 85, 211),
+            (0, 255, 204)
+        ]
+    },
+    "matrix": {
+        "name": "matrix",
+        "bg_effect": "matrix_rain",
+        "bg_color": (5, 15, 8),
+        "paddle_color": (0, 255, 70),
+        "empty_brick": (12, 30, 16),
+        "heart_color": (0, 255, 120),
+        "score_text_color": (80, 180, 100),
+        "banner_bg_color": (10, 28, 15),
+        "win_text_color": (0, 255, 70),
+        "lose_text_color": (255, 70, 70),
+        "brick_colors": [
+            (0, 60, 20),
+            (0, 120, 40),
+            (0, 190, 60),
+            (0, 255, 70)
         ]
     }
 }

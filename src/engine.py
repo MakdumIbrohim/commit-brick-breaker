@@ -36,6 +36,40 @@ class BrickBreakerEngine:
 
         self.reset_game()
 
+    def init_ambient_effects(self):
+        effect = self.theme.get("bg_effect", "starfield")
+        self.ambient_items = []
+        if effect == "starfield":
+            # Twinkling stars distributed across background
+            for _ in range(35):
+                self.ambient_items.append({
+                    "x": random.uniform(5, self.canvas_w - 5),
+                    "y": random.uniform(5, self.canvas_h - 10),
+                    "brightness": random.uniform(0.2, 1.0),
+                    "speed": random.uniform(0.02, 0.06),
+                    "size": 1 if random.random() < 0.8 else 2
+                })
+        elif effect == "mario_sky":
+            # Distinct Mario-style puffy pixel clouds drifting in open sky area below the bricks
+            cloud_configs = [
+                {"x": 30, "y": 140, "speed": 0.24, "scale": 1.1},
+                {"x": 260, "y": 185, "speed": 0.18, "scale": 0.85},
+                {"x": 480, "y": 148, "speed": 0.22, "scale": 1.25},
+                {"x": -70, "y": 170, "speed": 0.20, "scale": 0.95}
+            ]
+            for cc in cloud_configs:
+                self.ambient_items.append(cc)
+        elif effect == "matrix_rain":
+            # Digital code rain streams
+            cols = int(self.canvas_w / 16)
+            for c in range(cols):
+                self.ambient_items.append({
+                    "x": c * 16 + 8,
+                    "y": random.uniform(0, self.canvas_h),
+                    "speed": random.uniform(1.2, 2.5),
+                    "len": random.randint(4, 9)
+                })
+
     def reset_game(self):
         self.grid = [row[:] for row in self.initial_grid]
         self.bricks = {(r, c): self.grid[r][c] for r in range(self.rows) for c in range(self.cols) if self.grid[r][c] > 0}
@@ -48,6 +82,7 @@ class BrickBreakerEngine:
         self.sim_steps = 0
         self.miss_active = False
         self.miss_side = None
+        self.init_ambient_effects()
 
         self.reset_ball()
 
@@ -221,6 +256,22 @@ class BrickBreakerEngine:
         # Spawn specialized particles from paddle when in play
         if self.state == "playing":
             self.spawn_paddle_particles()
+
+        # Update animated theme ambient background items
+        effect = self.theme.get("bg_effect")
+        if effect == "starfield":
+            for s in self.ambient_items:
+                s["brightness"] = (math.sin(self.sim_steps * s["speed"] + s["x"]) + 1) / 2
+        elif effect == "mario_sky":
+            for c in self.ambient_items:
+                c["x"] += c["speed"]
+                if c["x"] > self.canvas_w + 60:
+                    c["x"] = -100
+        elif effect == "matrix_rain":
+            for col in self.ambient_items:
+                col["y"] += col["speed"]
+                if col["y"] > self.canvas_h + 30:
+                    col["y"] = -random.uniform(10, 40)
 
         # Update motion trail
         if self.state == "playing":
