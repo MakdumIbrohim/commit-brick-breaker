@@ -31,7 +31,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_user: ${{ github.repository_owner }}
           output_path: game.gif
-          ball_skin: classic # classic | fire | ice | lightning | poison
+          ball_skin: classic # Ganti opsi: classic | fire | ice | lightning | poison
 
       - name: Commit and Push
         run: |
@@ -42,6 +42,17 @@ jobs:
           git pull --rebase --autostash origin main || true
           git push
 ```
+
+#### Pilihan & Preview Skin (`ball_skin`)
+Ubah nilai parameter `ball_skin` pada workflow di atas sesuai skin yang diinginkan:
+
+| Parameter `ball_skin` | Preview Animasi |
+| :---: | :---: |
+| `classic` (default) | <img src="assets/preview/sample_classic.gif" width="340" alt="classic" /> |
+| `fire` | <img src="assets/preview/sample_fire.gif" width="340" alt="fire" /> |
+| `ice` | <img src="assets/preview/sample_ice.gif" width="340" alt="ice" /> |
+| `lightning` | <img src="assets/preview/sample_lightning.gif" width="340" alt="lightning" /> |
+| `poison` | <img src="assets/preview/sample_poison.gif" width="340" alt="poison" /> |
 
 2. Beri izin write: buka repo **Settings** > **Actions** > **General** > **Workflow permissions** > pilih **Read and write permissions** > **Save**.
 
