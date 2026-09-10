@@ -1,0 +1,31 @@
+name: 'GitHub Brick Breaker'
+description: 'Generate animated retro brick breaker game GIF from GitHub contribution graph'
+author: 'MakdumIbrohim'
+inputs:
+  github_token:
+    description: 'GitHub Token for fetching GraphQL contributions'
+    required: false
+    default: ${{ github.token }}
+  github_user:
+    description: 'Target GitHub username'
+    required: false
+    default: ${{ github.repository_owner }}
+  output_path:
+    description: 'Path for output GIF'
+    required: false
+    default: 'game.gif'
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      shell: bash
+      run: pip install pillow
+    - name: Run generator
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+      run: python ${{ github.action_path }}/generate.py "${{ inputs.github_user }}" "${{ inputs.output_path }}"
