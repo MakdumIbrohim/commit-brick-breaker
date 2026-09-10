@@ -16,6 +16,9 @@ name: Generate Brick Breaker
 on:
   schedule:
     - cron: "0 0 * * *"
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
