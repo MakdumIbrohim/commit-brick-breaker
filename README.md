@@ -89,6 +89,8 @@ jobs:
 </p>
 ```
 
+> **Note on Image Caching:** GitHub caches profile images through its Camo CDN. If you update settings and the animation does not change immediately, do a hard refresh (`Ctrl + F5` or `Cmd + Shift + R`), open your profile in an Incognito window, or allow 5–15 minutes for the CDN cache to clear.
+
 ### 2. Local Usage (CLI)
 
 ```bash
@@ -176,6 +178,8 @@ jobs:
   <img src="game.gif" alt="Brick Breaker Game" />
 </p>
 ```
+
+> **Catatan Cache Gambar:** GitHub menyimpan cache gambar profil melalui server Camo CDN. Jika Anda baru saja mengubah pengaturan tema/skin dan animasinya belum langsung berubah di profil, lakukan *hard refresh* (`Ctrl + F5` atau `Cmd + Shift + R`), buka lewat tab *Incognito*, atau tunggu 5–15 menit hingga cache CDN GitHub terperbarui otomatis.
 
 ### 2. Penggunaan di Lokal
 
