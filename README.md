@@ -1,6 +1,21 @@
 # Commit Brick Breaker
 
 <p align="center">
+  <a href="https://github.com/marketplace/actions/commit-brick-breaker">
+    <img src="https://img.shields.io/badge/Marketplace-v1.2.0-blue.svg?logo=github&style=flat-square" alt="Marketplace" />
+  </a>
+  <a href="https://github.com/MakdumIbrohim/commit-brick-breaker/actions">
+    <img src="https://img.shields.io/github/actions/workflow/status/MakdumIbrohim/commit-brick-breaker/generate.yml?branch=main&style=flat-square&label=build" alt="Build Status" />
+  </a>
+  <a href="https://github.com/MakdumIbrohim/commit-brick-breaker/stargazers">
+    <img src="https://img.shields.io/github/stars/MakdumIbrohim/commit-brick-breaker?style=flat-square&logo=github" alt="Stars" />
+  </a>
+  <a href="https://github.com/MakdumIbrohim/commit-brick-breaker/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/MakdumIbrohim/commit-brick-breaker?style=flat-square" alt="License" />
+  </a>
+</p>
+
+<p align="center">
   <img src="game.gif" alt="commit-brick-breaker" />
 </p>
 
