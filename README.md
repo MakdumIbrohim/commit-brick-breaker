@@ -54,12 +54,16 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_user: ${{ github.repository_owner }}
+
           # Options: game.svg (recommended) or game.gif
           output_path: game.svg
+
           # Options: classic | fire | ice | lightning | poison
           ball_skin: classic
+
           # Options: dark | sky | synthwave | matrix
           theme: dark
+
           # Options: default | laser | retro | mecha | cyber
           paddle_skin: default
 
@@ -159,6 +163,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_user: ${{ github.repository_owner }}
+
           # Opsi: game.svg (disarankan) atau game.gif
           output_path: game.svg
 
@@ -167,7 +172,7 @@ jobs:
 
           # Opsi: dark | sky | synthwave | matrix
           theme: dark
-          
+
           # Opsi: default | laser | retro | mecha | cyber
           paddle_skin: default
 
