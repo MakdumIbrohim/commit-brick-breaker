@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://github.com/marketplace/actions/generate-brick-breaker">
-    <img src="https://img.shields.io/badge/Marketplace-v1.2.0-blue.svg?logo=github&style=flat-square" alt="Marketplace" />
+    <img src="https://img.shields.io/badge/Marketplace-v1.3.0-blue.svg?logo=github&style=flat-square" alt="Marketplace" />
   </a>
   <a href="https://github.com/MakdumIbrohim/generate-brick-breaker/actions">
     <img src="https://img.shields.io/github/actions/workflow/status/MakdumIbrohim/generate-brick-breaker/generate.yml?branch=main&style=flat-square&label=build" alt="Build Status" />
