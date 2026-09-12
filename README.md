@@ -161,10 +161,13 @@ jobs:
           github_user: ${{ github.repository_owner }}
           # Opsi: game.svg (disarankan) atau game.gif
           output_path: game.svg
+
           # Opsi: classic | fire | ice | lightning | poison
           ball_skin: classic
+
           # Opsi: dark | sky | synthwave | matrix
           theme: dark
+          
           # Opsi: default | laser | retro | mecha | cyber
           paddle_skin: default
 
