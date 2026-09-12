@@ -40,8 +40,9 @@ def update_ambient_effects(items, effect, sim_steps, canvas_w, canvas_h):
     elif effect == "mario_sky":
         for c in items:
             c["x"] += c["speed"]
-            if c["x"] > canvas_w + 60:
-                c["x"] = -100
+            # Loop seamlessly: if cloud leaves right edge, re-enter from left
+            if c["x"] > canvas_w + 50:
+                c["x"] = -110
     elif effect == "matrix_rain":
         for col in items:
             col["y"] += col["speed"]

@@ -52,19 +52,26 @@ def generate_ambient_svg(theme, engine):
             delay = (i % 7) * 0.3
             elements.append(f'  <rect x="{s["x"]:.1f}" y="{s["y"]:.1f}" width="{s["size"]}" height="{s["size"]}" fill="#ffffff" style="animation: star-twinkle {dur:.1f}s ease-in-out infinite {delay:.1f}s;" />')
     elif effect == "mario_sky":
-        for i, c in enumerate(getattr(engine, "ambient_items", [])):
-            cx, cy = c["x"], c["y"]
-            sc = c.get("scale", 1.0)
+        # 4 distinct Mario puffy clouds cycling seamlessly from left to right
+        clouds = [
+            {"y": 140, "scale": 1.1, "dur": 24.0, "delay": 0.0},
+            {"y": 180, "scale": 0.85, "dur": 30.0, "delay": -7.5},
+            {"y": 150, "scale": 1.25, "dur": 20.0, "delay": -13.0},
+            {"y": 172, "scale": 0.95, "dur": 27.0, "delay": -19.5}
+        ]
+        for i, c in enumerate(clouds):
+            cy = c["y"]
+            sc = c["scale"]
             bw, bh = 54 * sc, 18 * sc
-            dur = 25.0 + (i % 4) * 5.0
-            delay = (i % 5) * -4.0
+            dur = c["dur"]
+            delay = c["delay"]
             cloud_g = [
-                f'  <g style="animation: cloud-drift {dur:.1f}s linear infinite {delay:.1f}s;">',
-                f'    <rect x="{cx:.1f}" y="{cy + 8 * sc:.1f}" width="{bw:.1f}" height="{bh:.1f}" rx="{bh/2:.1f}" fill="#ffffff" stroke="#000000" stroke-width="1" />',
-                f'    <circle cx="{cx + 17 * sc:.1f}" cy="{cy + 13 * sc:.1f}" r="{11 * sc:.1f}" fill="#ffffff" stroke="#000000" stroke-width="1" />',
-                f'    <circle cx="{cx + 34 * sc:.1f}" cy="{cy + 10 * sc:.1f}" r="{14 * sc:.1f}" fill="#ffffff" stroke="#000000" stroke-width="1" />',
-                f'    <circle cx="{cx + 46 * sc:.1f}" cy="{cy + 14 * sc:.1f}" r="{10 * sc:.1f}" fill="#ffffff" stroke="#000000" stroke-width="1" />',
-                f'    <rect x="{cx + 8 * sc:.1f}" y="{cy + 8 * sc:.1f}" width="{bw - 16 * sc:.1f}" height="{10 * sc:.1f}" fill="#ffffff" />',
+                f'  <g style="animation: cloud-loop {dur:.1f}s linear infinite {delay:.1f}s;">',
+                f'    <rect x="0" y="{cy + 8 * sc:.1f}" width="{bw:.1f}" height="{bh:.1f}" rx="{bh/2:.1f}" fill="#ffffff" stroke="#000000" stroke-width="1" />',
+                f'    <circle cx="{17 * sc:.1f}" cy="{cy + 13 * sc:.1f}" r="{11 * sc:.1f}" fill="#ffffff" stroke="#000000" stroke-width="1" />',
+                f'    <circle cx="{34 * sc:.1f}" cy="{cy + 10 * sc:.1f}" r="{14 * sc:.1f}" fill="#ffffff" stroke="#000000" stroke-width="1" />',
+                f'    <circle cx="{46 * sc:.1f}" cy="{cy + 14 * sc:.1f}" r="{10 * sc:.1f}" fill="#ffffff" stroke="#000000" stroke-width="1" />',
+                f'    <rect x="{8 * sc:.1f}" y="{cy + 8 * sc:.1f}" width="{bw - 16 * sc:.1f}" height="{10 * sc:.1f}" fill="#ffffff" />',
                 f'  </g>'
             ]
             elements.append("\n".join(cloud_g))

@@ -156,7 +156,7 @@ def render_svg(engine, output_path="game.svg", max_frames=2000):
         '    @keyframes flame-flicker { 0% { transform: scaleY(0.75); opacity: 0.8; } 100% { transform: scaleY(1.35); opacity: 1; } }',
         '    @keyframes spark-drift { 0% { transform: translateY(0px) scale(0.7); opacity: 1; } 100% { transform: translateY(8px) scale(1.3); opacity: 0; } }',
         '    @keyframes star-twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.95; } }',
-        '    @keyframes cloud-drift { 0% { transform: translateX(0); } 100% { transform: translateX(700px); } }',
+        '    @keyframes cloud-loop { 0% { transform: translateX(-110px); } 100% { transform: translateX(680px); } }',
         '    @keyframes pulse-glow { 0% { opacity: 0.35; transform: scale(0.9); } 100% { opacity: 0.85; transform: scale(1.15); } }',
         '    @keyframes matrix-stream { 0% { transform: translateY(0); } 100% { transform: translateY(340px); } }',
         f'    @keyframes ball-motion {{\n      ' + '\n      '.join(ball_kf) + '\n    }',
