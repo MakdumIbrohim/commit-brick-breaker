@@ -1,5 +1,5 @@
 name: 'Commit Brick Breaker'
-description: 'Generate animated retro brick breaker game GIF from GitHub contribution graph'
+description: 'Generate animated retro brick breaker game (SVG or GIF) from GitHub contribution graph'
 author: 'MakdumIbrohim'
 branding:
   icon: 'play'
