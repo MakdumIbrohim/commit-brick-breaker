@@ -77,13 +77,13 @@ def generate_ambient_svg(theme, engine):
             elements.append("\n".join(cloud_g))
     elif effect == "neon_grid":
         horizon_y = int(engine.canvas_h * 0.65)
-        elements.append(f'  <g style="animation: pulse-glow 2s ease-in-out infinite alternate;">')
-        elements.append(f'    <line x1="0" y1="{horizon_y}" x2="{engine.canvas_w}" y2="{horizon_y}" stroke="#781ec8" stroke-width="1.2" />')
+        elements.append(f'  <g class="synthwave-grid">')
+        elements.append(f'    <line x1="0" y1="{horizon_y}" x2="{engine.canvas_w}" y2="{horizon_y}" stroke="#961ec8" stroke-width="1.4" />')
         for y in range(horizon_y + 12, engine.canvas_h, 16):
-            elements.append(f'    <line x1="0" y1="{y}" x2="{engine.canvas_w}" y2="{y}" stroke="#5a1496" stroke-width="1" />')
+            elements.append(f'    <line x1="0" y1="{y}" x2="{engine.canvas_w}" y2="{y}" stroke="#6e1496" stroke-width="1" />')
         center_x = engine.canvas_w / 2
         for offset in range(-int(engine.canvas_w), int(engine.canvas_w * 2), 48):
-            elements.append(f'    <line x1="{center_x + (offset - center_x) * 0.15:.1f}" y1="{horizon_y}" x2="{offset}" y2="{engine.canvas_h}" stroke="#460a78" stroke-width="1" />')
+            elements.append(f'    <line x1="{center_x + (offset - center_x) * 0.15:.1f}" y1="{horizon_y}" x2="{offset}" y2="{engine.canvas_h}" stroke="#500a78" stroke-width="1" />')
         elements.append(f'  </g>')
     elif effect == "matrix_rain":
         cols = int(engine.canvas_w / 16)
