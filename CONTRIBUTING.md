@@ -1,6 +1,6 @@
-# Contributing to Commit Brick Breaker
+# Contributing to Generate Brick Breaker
 
-Thank you for your interest in contributing to Commit Brick Breaker! We welcome contributions for new elemental ball skins, paddle models, animated board themes, bug fixes, and performance improvements.
+Thank you for your interest in contributing to Generate Brick Breaker! We welcome contributions for new elemental ball skins, paddle models, animated board themes, bug fixes, and performance improvements.
 
 ## Code of Conduct
 Please be respectful, constructive, and collaborative in all issues and pull requests.
@@ -10,8 +10,8 @@ Please be respectful, constructive, and collaborative in all issues and pull req
 ### 1. Fork & Clone
 Fork this repository to your GitHub account and clone it locally:
 ```bash
-git clone https://github.com/<your-username>/commit-brick-breaker.git
-cd commit-brick-breaker
+git clone https://github.com/<your-username>/generate-brick-breaker.git
+cd generate-brick-breaker
 pip install pillow
 ```
 

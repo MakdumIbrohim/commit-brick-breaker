@@ -1,22 +1,22 @@
-# Commit Brick Breaker
+# Generate Brick Breaker
 
 <p align="center">
-  <a href="https://github.com/marketplace/actions/commit-brick-breaker">
+  <a href="https://github.com/marketplace/actions/generate-brick-breaker">
     <img src="https://img.shields.io/badge/Marketplace-v1.2.0-blue.svg?logo=github&style=flat-square" alt="Marketplace" />
   </a>
-  <a href="https://github.com/MakdumIbrohim/commit-brick-breaker/actions">
-    <img src="https://img.shields.io/github/actions/workflow/status/MakdumIbrohim/commit-brick-breaker/generate.yml?branch=main&style=flat-square&label=build" alt="Build Status" />
+  <a href="https://github.com/MakdumIbrohim/generate-brick-breaker/actions">
+    <img src="https://img.shields.io/github/actions/workflow/status/MakdumIbrohim/generate-brick-breaker/generate.yml?branch=main&style=flat-square&label=build" alt="Build Status" />
   </a>
-  <a href="https://github.com/MakdumIbrohim/commit-brick-breaker/stargazers">
-    <img src="https://img.shields.io/github/stars/MakdumIbrohim/commit-brick-breaker?style=flat-square&logo=github" alt="Stars" />
+  <a href="https://github.com/MakdumIbrohim/generate-brick-breaker/stargazers">
+    <img src="https://img.shields.io/github/stars/MakdumIbrohim/generate-brick-breaker?style=flat-square&logo=github" alt="Stars" />
   </a>
-  <a href="https://github.com/MakdumIbrohim/commit-brick-breaker/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/MakdumIbrohim/commit-brick-breaker?style=flat-square" alt="License" />
+  <a href="https://github.com/MakdumIbrohim/generate-brick-breaker/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/MakdumIbrohim/generate-brick-breaker?style=flat-square" alt="License" />
   </a>
 </p>
 
 <p align="center">
-  <img src="game.svg" alt="commit-brick-breaker" />
+  <img src="game.svg" alt="generate-brick-breaker" />
 </p>
 
 Turn your GitHub contribution graph into an automated retro Brick Breaker game animation (SVG or GIF) for your profile README.
@@ -50,7 +50,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: MakdumIbrohim/commit-brick-breaker@main
+      - uses: MakdumIbrohim/generate-brick-breaker@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_user: ${{ github.repository_owner }}
@@ -109,8 +109,8 @@ jobs:
 ### 2. Local Usage (CLI)
 
 ```bash
-git clone https://github.com/MakdumIbrohim/commit-brick-breaker.git
-cd commit-brick-breaker
+git clone https://github.com/MakdumIbrohim/generate-brick-breaker.git
+cd generate-brick-breaker
 pip install pillow
 python generate.py <username> [output.svg | output.gif] [skin] [theme] [paddle_skin]
 ```
@@ -151,7 +151,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: MakdumIbrohim/commit-brick-breaker@main
+      - uses: MakdumIbrohim/generate-brick-breaker@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_user: ${{ github.repository_owner }}
@@ -201,8 +201,8 @@ jobs:
 ### 2. Penggunaan di Lokal
 
 ```bash
-git clone https://github.com/MakdumIbrohim/commit-brick-breaker.git
-cd commit-brick-breaker
+git clone https://github.com/MakdumIbrohim/generate-brick-breaker.git
+cd generate-brick-breaker
 pip install pillow
 python generate.py <username_github> [output.svg | output.gif] [skin] [theme] [paddle_skin]
 ```

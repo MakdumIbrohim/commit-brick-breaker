@@ -38,7 +38,7 @@ def fetch_contributions(username, token=None):
     # 1. Fetch real public contribution data (works seamlessly locally without token)
     try:
         url = f"https://github-contributions-api.jogruber.de/v4/{username}?y=last"
-        req = urllib.request.Request(url, headers={"User-Agent": "commit-brick-breaker"})
+        req = urllib.request.Request(url, headers={"User-Agent": "generate-brick-breaker"})
         with urllib.request.urlopen(req, timeout=8) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             contribs = [c for c in data["contributions"] if c["date"] >= from_date]
@@ -73,7 +73,7 @@ def fetch_contributions(username, token=None):
         req = urllib.request.Request(
             "https://api.github.com/graphql",
             data=json.dumps({"query": query, "variables": variables}).encode("utf-8"),
-            headers={"Authorization": f"Bearer {token}", "User-Agent": "commit-brick-breaker"}
+            headers={"Authorization": f"Bearer {token}", "User-Agent": "generate-brick-breaker"}
         )
         try:
             with urllib.request.urlopen(req, timeout=8) as resp:
