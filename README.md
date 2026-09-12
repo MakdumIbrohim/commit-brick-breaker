@@ -120,8 +120,9 @@ jobs:
 
 > **Note on Image Caching:** GitHub caches profile images through its Camo CDN. If you update settings and the animation does not change immediately, do a hard refresh (`Ctrl + F5` or `Cmd + Shift + R`), open your profile in an Incognito window, or allow 5–15 minutes for the CDN cache to clear.
 
-#### 2. Local Usage (CLI)
+#### 2. Local Usage
 
+**Using Python:**
 ```bash
 git clone https://github.com/MakdumIbrohim/generate-brick-breaker.git
 cd generate-brick-breaker
@@ -136,6 +137,16 @@ python generate.py MakdumIbrohim game.svg
 
 # Output GIF
 python generate.py MakdumIbrohim game.gif fire dark laser
+```
+
+**Using Docker (Without installing Python):**
+```bash
+# Run with Docker Compose (outputs to current folder)
+docker compose up
+
+# Or run directly with Docker
+docker build -t generate-brick-breaker .
+docker run --rm -v $(pwd):/output generate-brick-breaker MakdumIbrohim /output/game.svg
 ```
 
 ---
