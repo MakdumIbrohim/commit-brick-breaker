@@ -85,8 +85,8 @@ def render_frame(engine):
     # 1. Environmental background
     draw_ambient_background(draw, engine, theme)
 
-    score = engine.total_bricks - len(engine.bricks)
-    draw.text((engine.margin_x, 8), f"SCORE: {score}/{engine.total_bricks}", fill=theme["score_text_color"])
+    # Score preserves accumulated broken bricks across life resets
+    draw.text((engine.margin_x, 8), f"SCORE: {engine.score}/{engine.total_bricks}", fill=theme["score_text_color"])
 
     # 2. Hearts
     heart_start_x = engine.canvas_w - engine.margin_x - (engine.lives * 16)

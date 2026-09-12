@@ -40,11 +40,15 @@ class BrickBreakerEngine:
 
         self.reset_game()
 
-    def reset_game(self):
-        self.grid = [row[:] for row in self.initial_grid]
-        self.bricks = {(r, c): self.grid[r][c] for r in range(self.rows) for c in range(self.cols) if self.grid[r][c] > 0}
-        self.initial_grid_bricks = list(self.bricks.keys())
-        self.total_bricks = len(self.bricks)
+    def reset_game(self, full_reset=True):
+        if full_reset:
+            # Authentic GitHub contribution matrix: only days with commits are active bricks
+            self.grid = [row[:] for row in self.initial_grid]
+            self.bricks = {(r, c): self.grid[r][c] for r in range(self.rows) for c in range(self.cols) if self.grid[r][c] > 0}
+            self.initial_grid_bricks = list(self.bricks.keys())
+            self.total_bricks = len(self.bricks)
+            self.score = 0
+            self.hit_events = {}  # (r, c) -> frame index where ball touches brick
         self.lives = INITIAL_LIVES
         self.state = "playing"  # playing, life_lost, game_over, win
         self.state_timer = 0
@@ -84,6 +88,7 @@ class BrickBreakerEngine:
 
     def step(self):
         self.sim_steps += 1
+        self.destroyed_this_step = []
 
         self.particles = update_particles(self.particles, self.sim_steps)
 
@@ -138,7 +143,8 @@ class BrickBreakerEngine:
                 self.state = "playing"
                 self.state_timer = 0
             elif self.state == "game_over" and self.state_timer > 25:
-                self.reset_game()
+                # Continue game with remaining bricks and preserved score (only reset lives & ball)
+                self.reset_game(full_reset=False)
             return
 
         self.ball_x += self.vx
@@ -163,15 +169,15 @@ class BrickBreakerEngine:
         if abs(self.vy) < 2.5:
             self.vy = -2.5 if self.vy <= 0 else 2.5
 
-        # Dynamic miss trigger: independent roll on descent across varying heights and positions
-        if self.vy > 0 and 100 < self.ball_y < 145 and not self.miss_active:
-            # Chance to miss slightly varied per run, never trigger miss if lives <= 1 to avoid premature game over
-            drop_prob = 0.12 if len(self.bricks) > 10 else 0.05
-            if self.lives > 1 and random.random() < drop_prob:
+        # Dynamic, organic miss trigger: independent roll on descent across varying positions
+        if self.vy > 0 and 95 < self.ball_y < 145 and not self.miss_active:
+            # Balanced organic drop probability (~5-8% on descent) across various random x-positions
+            drop_prob = 0.07 if len(self.bricks) > 15 else 0.04
+            if random.random() < drop_prob:
                 self.miss_active = True
                 self.miss_side = random.choice([-1, 1])
-                # Variable narrow gap for organic near-miss sensation
-                self.miss_gap = random.uniform(3.0, 7.5)
+                # Variable narrow near-miss gap for natural human imperfection
+                self.miss_gap = random.uniform(4.0, 9.5)
 
         # Paddle tracking: stays extremely close to the ball
         if self.miss_active and self.ball_y > 150:
@@ -182,9 +188,9 @@ class BrickBreakerEngine:
             lerp_speed = random.uniform(0.68, 0.78)
         else:
             # Dynamic human-like tracking variation
-            wobble = math.sin(self.sim_steps * 0.12) * random.uniform(4.0, 8.0)
+            wobble = math.sin(self.sim_steps * 0.12) * random.uniform(2.5, 6.0)
             target_px = self.ball_x - self.paddle_w / 2 + wobble
-            lerp_speed = 0.85
+            lerp_speed = 0.88
 
         self.paddle_x += (target_px - self.paddle_x) * lerp_speed
         self.paddle_x = max(self.margin_x, min(self.canvas_w - self.margin_x - self.paddle_w, self.paddle_x))
@@ -251,19 +257,23 @@ class BrickBreakerEngine:
                 by1 - self.ball_r <= self.ball_y <= by2 + self.ball_r):
 
                 del self.bricks[(r, c)]
+                self.destroyed_this_step.append((r, c))
+                self.score += 1
                 elem = self.skin.get("element", "none")
-                # Trigger brick element transition (freezing / igniting / electrocuting / melting)
-                shatter_dur = 6 if elem in ("ice", "fire", "poison") else 4
-                self.shattering_bricks[(r, c)] = {
-                    "timer": shatter_dur,
-                    "max": shatter_dur,
-                    "elem": elem,
-                    "bx": bx1,
-                    "by": by1,
-                    "orig_val": self.grid[r][c]
-                }
-                # Initial light contact spark
-                self.spawn_particles((bx1 + bx2) / 2, (by1 + by2) / 2, count=2)
+
+                # Default/classic skin breaks instantly without delay
+                if elem != "none":
+                    shatter_dur = 6 if elem in ("ice", "fire", "poison") else 4
+                    self.shattering_bricks[(r, c)] = {
+                        "timer": shatter_dur,
+                        "max": shatter_dur,
+                        "elem": elem,
+                        "bx": bx1,
+                        "by": by1,
+                        "orig_val": self.grid[r][c]
+                    }
+                    # Initial light contact spark
+                    self.spawn_particles((bx1 + bx2) / 2, (by1 + by2) / 2, count=2)
 
                 # Determine impact normal vector
                 overlap_l = (self.ball_x + self.ball_r) - bx1

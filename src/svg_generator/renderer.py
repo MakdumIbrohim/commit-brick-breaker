@@ -17,32 +17,42 @@ def render_svg(engine, output_path="game.svg", max_frames=2000):
     history = []
     step_idx = 0
 
+    brick_hit_map = {}
+    frame_idx = 0
+
     while len(engine.bricks) > 0 and len(history) < max_frames:
         engine.step()
-        if step_idx % 2 == 0:
-            active_p = []
-            for p in engine.particles[:18]:
-                active_p.append({
-                    "x": round(p["x"], 1),
-                    "y": round(p["y"], 1),
-                    "color": rgb_to_hex(p.get("color", (255, 255, 255))),
-                    "size": p.get("size", 2),
-                    "type": p.get("type", "debris")
-                })
 
-            trail_pts = [(round(tx, 1), round(ty, 1)) for tx, ty in engine.trail]
+        # Record exact frame where each brick is struck by ball
+        for hit_rc in getattr(engine, "destroyed_this_step", []):
+            if hit_rc not in brick_hit_map:
+                brick_hit_map[hit_rc] = frame_idx
 
-            history.append({
-                "bx": round(engine.ball_x, 1),
-                "by": round(engine.ball_y, 1),
-                "px": round(engine.paddle_x, 1),
-                "py": round(engine.paddle_y, 1),
-                "trail": trail_pts,
-                "particles": active_p,
-                "destroyed": list(engine.bricks.keys()),
-                "state": engine.state
+        active_p = []
+        for p in engine.particles[:18]:
+            active_p.append({
+                "x": round(p["x"], 1),
+                "y": round(p["y"], 1),
+                "color": rgb_to_hex(p.get("color", (255, 255, 255))),
+                "size": p.get("size", 2),
+                "type": p.get("type", "debris")
             })
-        step_idx += 1
+
+        trail_pts = [(round(tx, 1), round(ty, 1)) for tx, ty in engine.trail]
+
+        history.append({
+            "bx": round(engine.ball_x, 1),
+            "by": round(engine.ball_y, 1),
+            "px": round(engine.paddle_x, 1),
+            "py": round(engine.paddle_y, 1),
+            "trail": trail_pts,
+            "particles": active_p,
+            "destroyed": list(engine.bricks.keys()),
+            "lives": max(0, engine.lives),
+            "score": engine.score,
+            "state": engine.state
+        })
+        frame_idx += 1
 
     for _ in range(15):
         history.append({
@@ -53,22 +63,32 @@ def render_svg(engine, output_path="game.svg", max_frames=2000):
             "trail": [],
             "particles": [],
             "destroyed": [],
+            "lives": max(0, engine.lives),
             "score": engine.total_bricks,
             "state": "win"
         })
 
     total_frames = len(history)
-    duration_sec = round(total_frames * 0.05, 1)
+    duration_sec = round(total_frames * 0.035, 1)
 
     ball_kf, paddle_kf = build_svg_keyframes(history, total_frames)
-    brick_disappear = calculate_brick_lifetimes(engine.initial_grid_bricks, history, total_frames)
+
+    # Compute exact hit percentages for each brick
+    brick_timing_map = {}
+    shatter_phase_pct = round((4 / max(1, total_frames)) * 100, 2)
+    for rc, hit_frame in brick_hit_map.items():
+        hit_pct = round((hit_frame / max(1, total_frames - 1)) * 100, 2)
+        brick_timing_map[rc] = {
+            "hit": hit_pct,
+            "end": min(100.0, hit_pct + shatter_phase_pct)
+        }
 
     # Build score digit roller keyframes (hundreds, tens, ones)
     line_h = 12
     kf_d100, kf_d10, kf_d1 = [], [], []
     for f_i, h in enumerate(history):
         pct = round((f_i / (total_frames - 1)) * 100, 2)
-        sc = engine.total_bricks - len(h["destroyed"])
+        sc = h.get("score", engine.total_bricks - len(h["destroyed"]))
         d100 = (sc // 100) % 10
         d10 = (sc // 10) % 10
         d1 = sc % 10
@@ -80,6 +100,21 @@ def render_svg(engine, output_path="game.svg", max_frames=2000):
         f"@keyframes score-d100 {{\n      " + "\n      ".join(kf_d100) + "\n    }",
         f"@keyframes score-d10 {{\n      " + "\n      ".join(kf_d10) + "\n    }",
         f"@keyframes score-d1 {{\n      " + "\n      ".join(kf_d1) + "\n    }"
+    ]
+
+    # Build dynamic heart life keyframes
+    kf_h1, kf_h2, kf_h3 = [], [], []
+    for f_i, h in enumerate(history):
+        pct = round((f_i / (total_frames - 1)) * 100, 2)
+        lv = h.get("lives", 3)
+        kf_h1.append(f"{pct}% {{ opacity: {1 if lv >= 1 else 0}; }}")
+        kf_h2.append(f"{pct}% {{ opacity: {1 if lv >= 2 else 0}; }}")
+        kf_h3.append(f"{pct}% {{ opacity: {1 if lv >= 3 else 0}; }}")
+
+    heart_kfs = [
+        f"@keyframes heart-life-1 {{\n      " + "\n      ".join(kf_h1) + "\n    }",
+        f"@keyframes heart-life-2 {{\n      " + "\n      ".join(kf_h2) + "\n    }",
+        f"@keyframes heart-life-3 {{\n      " + "\n      ".join(kf_h3) + "\n    }"
     ]
 
     trail_count = 2 if engine.skin.get("trail_color") else 0
@@ -115,6 +150,9 @@ def render_svg(engine, output_path="game.svg", max_frames=2000):
         f'    .roll-d100 {{ animation: score-d100 {duration_sec}s linear infinite; }}',
         f'    .roll-d10 {{ animation: score-d10 {duration_sec}s linear infinite; }}',
         f'    .roll-d1 {{ animation: score-d1 {duration_sec}s linear infinite; }}',
+        f'    .heart-1 {{ animation: heart-life-1 {duration_sec}s linear infinite; }}',
+        f'    .heart-2 {{ animation: heart-life-2 {duration_sec}s linear infinite; }}',
+        f'    .heart-3 {{ animation: heart-life-3 {duration_sec}s linear infinite; }}',
         '    @keyframes flame-flicker { 0% { transform: scaleY(0.75); opacity: 0.8; } 100% { transform: scaleY(1.35); opacity: 1; } }',
         '    @keyframes spark-drift { 0% { transform: translateY(0px) scale(0.7); opacity: 1; } 100% { transform: translateY(8px) scale(1.3); opacity: 0; } }',
         '    @keyframes star-twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.95; } }',
@@ -136,6 +174,9 @@ def render_svg(engine, output_path="game.svg", max_frames=2000):
     for skf in score_kfs:
         svg.append(f'    {skf}')
 
+    for hkf in heart_kfs:
+        svg.append(f'    {hkf}')
+
     ambient_elements = generate_ambient_svg(theme, engine)
 
     brick_idx = 0
@@ -146,6 +187,10 @@ def render_svg(engine, output_path="game.svg", max_frames=2000):
             by = engine.margin_y + r * engine.cell_h
             val = engine.initial_grid[r][c]
 
+            # Background empty grid slot (always present)
+            brick_rects.append(f'  <rect class="empty-cell" x="{bx + 1:.1f}" y="{by + 1:.1f}" width="{engine.cell_w - 2:.1f}" height="{engine.cell_h - 2:.1f}" />')
+
+            # Only render active playable brick if user actually has commits on this day
             if val > 0:
                 palette = theme["brick_colors"]
                 if val < 3:
@@ -158,35 +203,35 @@ def render_svg(engine, output_path="game.svg", max_frames=2000):
                     bcolor = palette[3]
                 b_hex = rgb_to_hex(bcolor)
 
-                # Get elemental shatter sequence colors
-                disp_info = brick_disappear.get((r, c), {"hit": 100.0, "end": 100.0})
-                t_hit = disp_info["hit"]
-                t_end = disp_info["end"]
+                disp_info = brick_timing_map.get((r, c))
                 kf_name = f"b{brick_idx}"
                 elem = engine.skin.get("element", "none")
 
-                if elem == "ice":
-                    shatter_col = "#afeeff"
-                    svg.append(f'    @keyframes {kf_name} {{ 0%, {t_hit}% {{ fill: {b_hex}; opacity: 1; }} {t_hit + 0.01}% {{ fill: {shatter_col}; }} {t_end}% {{ fill: #d8f5ff; opacity: 1; }} {min(100.0, t_end + 0.05)}%, 100% {{ opacity: 0; }} }}')
-                elif elem == "fire":
-                    shatter_col = "#ff4500"
-                    svg.append(f'    @keyframes {kf_name} {{ 0%, {t_hit}% {{ fill: {b_hex}; opacity: 1; }} {t_hit + 0.01}% {{ fill: {shatter_col}; }} {t_end}% {{ fill: #ff8c00; opacity: 0.8; }} {min(100.0, t_end + 0.05)}%, 100% {{ opacity: 0; }} }}')
-                elif elem == "lightning":
-                    shatter_col = "#ffff60"
-                    svg.append(f'    @keyframes {kf_name} {{ 0%, {t_hit}% {{ fill: {b_hex}; opacity: 1; }} {t_hit + 0.01}% {{ fill: {shatter_col}; }} {t_end}% {{ fill: #d299ff; opacity: 0.9; }} {min(100.0, t_end + 0.05)}%, 100% {{ opacity: 0; }} }}')
-                elif elem == "poison":
-                    shatter_col = "#238636"
-                    svg.append(f'    @keyframes {kf_name} {{ 0%, {t_hit}% {{ fill: {b_hex}; opacity: 1; }} {t_hit + 0.01}% {{ fill: {shatter_col}; }} {t_end}% {{ fill: #0e4429; opacity: 0.7; }} {min(100.0, t_end + 0.05)}%, 100% {{ opacity: 0; }} }}')
+                if disp_info is not None:
+                    t_hit = disp_info["hit"]
+                    t_end = disp_info["end"]
+                    if elem == "ice":
+                        shatter_col = "#afeeff"
+                        svg.append(f'    @keyframes {kf_name} {{ 0%, {t_hit}% {{ fill: {b_hex}; opacity: 1; }} {t_hit + 0.01}% {{ fill: {shatter_col}; }} {t_end}% {{ fill: #d8f5ff; opacity: 1; }} {min(100.0, t_end + 0.05)}%, 100% {{ opacity: 0; }} }}')
+                    elif elem == "fire":
+                        shatter_col = "#ff4500"
+                        svg.append(f'    @keyframes {kf_name} {{ 0%, {t_hit}% {{ fill: {b_hex}; opacity: 1; }} {t_hit + 0.01}% {{ fill: {shatter_col}; }} {t_end}% {{ fill: #ff8c00; opacity: 0.8; }} {min(100.0, t_end + 0.05)}%, 100% {{ opacity: 0; }} }}')
+                    elif elem == "lightning":
+                        shatter_col = "#ffff60"
+                        svg.append(f'    @keyframes {kf_name} {{ 0%, {t_hit}% {{ fill: {b_hex}; opacity: 1; }} {t_hit + 0.01}% {{ fill: {shatter_col}; }} {t_end}% {{ fill: #d299ff; opacity: 0.9; }} {min(100.0, t_end + 0.05)}%, 100% {{ opacity: 0; }} }}')
+                    elif elem == "poison":
+                        shatter_col = "#238636"
+                        svg.append(f'    @keyframes {kf_name} {{ 0%, {t_hit}% {{ fill: {b_hex}; opacity: 1; }} {t_hit + 0.01}% {{ fill: {shatter_col}; }} {t_end}% {{ fill: #0e4429; opacity: 0.7; }} {min(100.0, t_end + 0.05)}%, 100% {{ opacity: 0; }} }}')
+                    else:
+                        # Classic/default: disappear instantly on impact
+                        svg.append(f'    @keyframes {kf_name} {{ 0%, {t_hit}% {{ fill: {b_hex}; opacity: 1; }} {min(100.0, t_hit + 0.02)}%, 100% {{ opacity: 0; }} }}')
+                    svg.append(f'    .{kf_name} {{ fill: {b_hex}; animation: {kf_name} {duration_sec}s linear infinite; }}')
                 else:
-                    svg.append(f'    @keyframes {kf_name} {{ 0%, {t_hit}% {{ fill: {b_hex}; opacity: 1; }} {t_end}% {{ opacity: 1; }} {min(100.0, t_end + 0.05)}%, 100% {{ opacity: 0; }} }}')
+                    # Brick never hit in this preview duration: stays solid visible 100% of the time!
+                    svg.append(f'    .{kf_name} {{ fill: {b_hex}; opacity: 1; }}')
 
-                svg.append(f'    .{kf_name} {{ animation: {kf_name} {duration_sec}s linear infinite; }}')
-
-                brick_rects.append(f'  <rect class="empty-cell" x="{bx + 1:.1f}" y="{by + 1:.1f}" width="{engine.cell_w - 2:.1f}" height="{engine.cell_h - 2:.1f}" />')
                 brick_rects.append(f'  <rect class="{kf_name}" x="{bx + 1:.1f}" y="{by + 1:.1f}" width="{engine.cell_w - 2:.1f}" height="{engine.cell_h - 2:.1f}" />')
                 brick_idx += 1
-            else:
-                brick_rects.append(f'  <rect class="empty-cell" x="{bx + 1:.1f}" y="{by + 1:.1f}" width="{engine.cell_w - 2:.1f}" height="{engine.cell_h - 2:.1f}" />')
 
     svg.append('  </style>')
     svg.append('  <defs>')
@@ -220,10 +265,10 @@ def render_svg(engine, output_path="game.svg", max_frames=2000):
     svg.append(f'  </g>')
     svg.append(f'  <text class="score-txt" x="{total_x}" y="18">/{engine.total_bricks}</text>')
 
-    heart_start_x = engine.canvas_w - engine.margin_x - (engine.lives * 16)
-    for i in range(max(0, engine.lives)):
+    heart_start_x = engine.canvas_w - engine.margin_x - (3 * 16)
+    for i in range(3):
         h_path = get_heart_svg_path(heart_start_x + i * 16, 14, size=5)
-        svg.append(f'  <path class="heart" d="{h_path}" />')
+        svg.append(f'  <path class="heart heart-{i + 1}" d="{h_path}" />')
 
     svg.extend(brick_rects)
 
