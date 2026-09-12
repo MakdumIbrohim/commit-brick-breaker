@@ -16,7 +16,7 @@ inputs:
   output_path:
     description: 'Path for output file (supports .gif or .svg)'
     required: false
-    default: 'game.gif'
+    default: 'game.svg'
   ball_skin:
     description: 'Ball elemental skin theme (classic, fire, ice, lightning, poison)'
     required: false
