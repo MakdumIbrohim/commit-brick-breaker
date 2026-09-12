@@ -16,7 +16,7 @@ pip install pillow
 ```
 
 ### 2. Architecture & Guidelines
-- **Adding Ball / Paddle Skins:** Register parameters in `src/config.py`, emit particles in `src/particles.py`, and implement rendering in `src/renderer.py`.
+- **Adding Ball / Paddle Skins:** Register parameters in `src/config.py`, emit particles in `src/particles.py`, and implement rendering in `src/gif_generator/` and `src/svg_generator/`.
 - **Adding Board Themes:** Define palettes and triggers in `src/config.py`, and implement environmental drawing logic in `src/ambient.py`.
 - **Lightweight Dependencies:** Keep the project minimal. `Pillow` is the only allowed external dependency. Do not introduce heavy libraries.
 - **Local Testing:** Always test the generated GIF locally across different accounts, themes, and skins before opening a PR:

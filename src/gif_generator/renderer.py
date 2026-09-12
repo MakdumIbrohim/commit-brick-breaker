@@ -1,6 +1,5 @@
 from PIL import Image, ImageDraw
-from src.ambient import draw_ambient_background
-from src.particles import draw_particles
+from .elements import draw_ambient_background, draw_particles
 
 def get_brick_color(count, theme):
     if count == 0:

@@ -2,8 +2,8 @@ import os
 import sys
 from src.fetcher import fetch_contributions
 from src.engine import BrickBreakerEngine
-from src.renderer import render_gif
-from src.svg_renderer import render_svg
+from src.gif_generator import render_gif
+from src.svg_generator import render_svg
 from src.config import DEFAULT_SKIN, DEFAULT_THEME, DEFAULT_PADDLE_SKIN
 
 def main():

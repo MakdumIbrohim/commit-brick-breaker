@@ -141,32 +141,3 @@ def update_particles(particles, sim_steps):
         if p["life"] > 0:
             surviving.append(p)
     return surviving
-
-def draw_particles(draw, particles):
-    for p in particles:
-        px, py = p["x"], p["y"]
-        sz = p["size"]
-        col = p["color"]
-        ptype = p.get("type", "debris")
-
-        if ptype == "snowflake":
-            draw.line([(px - sz, py), (px + sz, py)], fill=col, width=1)
-            draw.line([(px, py - sz), (px, py + sz)], fill=col, width=1)
-        elif ptype == "crystal":
-            draw.polygon([(px, py - sz), (px + sz, py), (px, py + sz), (px - sz, py)], fill=col)
-        elif ptype == "ember":
-            draw.ellipse([px - sz, py - sz, px + sz, py + sz], fill=col)
-        elif ptype == "spark":
-            draw.line([(px, py), (px - p["vx"] * 1.5, py - p["vy"] * 1.5)], fill=col, width=1)
-        elif ptype == "bubble":
-            draw.ellipse([px - sz, py - sz, px + sz, py + sz], outline=col, width=1)
-        elif ptype == "zap":
-            draw.line([(px, py), (px + p["vx"], py + p["vy"])], fill=col, width=1)
-        elif ptype == "thrust":
-            draw.polygon([(px - sz, py), (px + sz, py), (px, py + sz * 2.5)], fill=col)
-        elif ptype == "energy":
-            draw.ellipse([px - sz, py - sz, px + sz, py + sz], fill=col)
-        elif ptype == "pixel":
-            draw.rectangle([px - sz, py - sz, px + sz, py + sz], fill=col)
-        else:
-            draw.rectangle([px - 1, py - 1, px + 1, py + 1], fill=col)
