@@ -19,7 +19,7 @@
   <img src="game.gif" alt="commit-brick-breaker" />
 </p>
 
-Turn your GitHub contribution graph into an automated retro Brick Breaker game GIF for your profile README.
+Turn your GitHub contribution graph into an automated retro Brick Breaker game animation (SVG or GIF) for your profile README.
 
 [English](#english) • [Bahasa Indonesia](#bahasa-indonesia)
 
@@ -54,7 +54,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_user: ${{ github.repository_owner }}
-          output_path: game.gif
+          output_path: game.svg # Supports .svg (crisp, lightweight vector) or .gif
           ball_skin: classic # classic | fire | ice | lightning | poison
           theme: dark # dark | sky | synthwave | matrix
           paddle_skin: default # default | laser | retro | mecha | cyber
@@ -63,7 +63,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add game.gif
+          git add game.svg game.gif || true
           git diff --staged --quiet || git commit -m "chore: update brick breaker game"
           git pull --rebase --autostash origin main || true
           git push
@@ -97,10 +97,10 @@ jobs:
 
 2. Enable workflow permissions: Repo **Settings** > **Actions** > **General** > **Workflow permissions** > select **Read and write permissions** > **Save**.
 
-3. Add image to your profile `README.md`:
+3. Add image to your profile `README.md` (use `.svg` or `.gif` matching your `output_path`):
 ```markdown
 <p align="center">
-  <img src="game.gif" alt="Brick Breaker Game" />
+  <img src="game.svg" alt="Brick Breaker Game" />
 </p>
 ```
 
@@ -112,14 +112,16 @@ jobs:
 git clone https://github.com/MakdumIbrohim/commit-brick-breaker.git
 cd commit-brick-breaker
 pip install pillow
-python generate.py <username> [output.gif] [skin] [theme] [paddle_skin]
+python generate.py <username> [output.svg | output.gif] [skin] [theme] [paddle_skin]
 ```
 
 Examples:
 ```bash
-python generate.py MakdumIbrohim game.gif
+# Output SVG (recommended: lightweight vector animation)
+python generate.py MakdumIbrohim game.svg
+
+# Output GIF
 python generate.py MakdumIbrohim game.gif fire dark laser
-GITHUB_TOKEN="ghp_xxx" python generate.py MakdumIbrohim game.gif ice sky mecha
 ```
 
 ---
@@ -153,7 +155,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_user: ${{ github.repository_owner }}
-          output_path: game.gif
+          output_path: game.svg # Mendukung .svg (vektor tajam & ringan) atau .gif
           ball_skin: classic # classic | fire | ice | lightning | poison
           theme: dark # dark | sky | synthwave | matrix
           paddle_skin: default # default | laser | retro | mecha | cyber
@@ -162,7 +164,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add game.gif
+          git add game.svg game.gif || true
           git diff --staged --quiet || git commit -m "chore: update brick breaker game"
           git pull --rebase --autostash origin main || true
           git push
@@ -187,10 +189,10 @@ jobs:
 
 2. Beri izin write: buka repo **Settings** > **Actions** > **General** > **Workflow permissions** > pilih **Read and write permissions** > **Save**.
 
-3. Tampilkan di `README.md` profil Anda:
+3. Tampilkan di `README.md` profil Anda (sesuaikan ekstensi `.svg` atau `.gif` dengan `output_path` Anda):
 ```markdown
 <p align="center">
-  <img src="game.gif" alt="Brick Breaker Game" />
+  <img src="game.svg" alt="Brick Breaker Game" />
 </p>
 ```
 
@@ -202,12 +204,14 @@ jobs:
 git clone https://github.com/MakdumIbrohim/commit-brick-breaker.git
 cd commit-brick-breaker
 pip install pillow
-python generate.py <username_github> [output_file.gif] [skin] [theme] [paddle_skin]
+python generate.py <username_github> [output.svg | output.gif] [skin] [theme] [paddle_skin]
 ```
 
 Contoh pemakaian:
 ```bash
-python generate.py MakdumIbrohim game.gif
+# Output SVG (ringan & tajam di layar resolusi tinggi)
+python generate.py MakdumIbrohim game.svg
+
+# Output GIF
 python generate.py MakdumIbrohim game.gif fire dark laser
-GITHUB_TOKEN="ghp_xxx" python generate.py MakdumIbrohim game.gif ice sky mecha
 ```

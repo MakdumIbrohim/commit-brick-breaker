@@ -3,6 +3,7 @@ import sys
 from src.fetcher import fetch_contributions
 from src.engine import BrickBreakerEngine
 from src.renderer import render_gif
+from src.svg_renderer import render_svg
 from src.config import DEFAULT_SKIN, DEFAULT_THEME, DEFAULT_PADDLE_SKIN
 
 def main():
@@ -15,7 +16,12 @@ def main():
 
     grid = fetch_contributions(username, token)
     engine = BrickBreakerEngine(grid, skin=skin, theme=theme, paddle_skin=paddle_skin)
-    render_gif(engine, output_path=output_path)
+
+    # Choose generator by output file extension (.svg or .gif)
+    if output_path.lower().endswith(".svg"):
+        render_svg(engine, output_path=output_path)
+    else:
+        render_gif(engine, output_path=output_path)
 
 if __name__ == "__main__":
     main()

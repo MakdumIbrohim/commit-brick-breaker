@@ -43,6 +43,7 @@ class BrickBreakerEngine:
     def reset_game(self):
         self.grid = [row[:] for row in self.initial_grid]
         self.bricks = {(r, c): self.grid[r][c] for r in range(self.rows) for c in range(self.cols) if self.grid[r][c] > 0}
+        self.initial_grid_bricks = list(self.bricks.keys())
         self.total_bricks = len(self.bricks)
         self.lives = INITIAL_LIVES
         self.state = "playing"  # playing, life_lost, game_over, win

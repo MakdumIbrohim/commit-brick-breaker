@@ -14,7 +14,7 @@ inputs:
     required: false
     default: ${{ github.repository_owner }}
   output_path:
-    description: 'Path for output GIF'
+    description: 'Path for output file (supports .gif or .svg)'
     required: false
     default: 'game.gif'
   ball_skin:
