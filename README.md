@@ -67,10 +67,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add game.svg game.gif || true
-          git diff --staged --quiet || git commit -m "chore: update brick breaker game"
-          git pull --rebase --autostash origin main || true
-          git push
+          git add -A
+          git diff --staged --quiet || git commit -m "chore: update brick breaker assets"
+          git pull --rebase origin main || true
+          git push origin main
 ```
 
 #### Ball Skin Options (`ball_skin`)
@@ -172,10 +172,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add game.svg game.gif || true
-          git diff --staged --quiet || git commit -m "chore: update brick breaker game"
-          git pull --rebase --autostash origin main || true
-          git push
+          git add -A
+          git diff --staged --quiet || git commit -m "chore: update brick breaker assets"
+          git pull --rebase origin main || true
+          git push origin main
 ```
 
 #### Pilihan Skin Paddle (`paddle_skin`)
