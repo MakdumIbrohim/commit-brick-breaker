@@ -60,6 +60,14 @@ def draw_paddle(draw, engine, theme):
         cx = (x1 + x2) / 2
         draw.rounded_rectangle([cx - pw * 0.22, y1 - 1, cx + pw * 0.22, y2 + 1], radius=2, fill=pskin["plate"])
         draw.line([(x1 + bw, y1 + 1), (x2 - bw, y1 + 1)], fill=(255, 255, 255), width=1)
+        # Multi-layer dual rocket flame thrust (100% attached to booster base)
+        flame_h = 5 + (engine.sim_steps % 3) * 2
+        # Outer red flame
+        draw.polygon([(x1 + 1, y2 - 1), (x1 + bw - 1, y2 - 1), (x1 + bw / 2, y2 + flame_h)], fill=(255, 60, 20))
+        draw.polygon([(x2 - 1, y2 - 1), (x2 - bw + 1, y2 - 1), (x2 - bw / 2, y2 + flame_h)], fill=(255, 60, 20))
+        # Inner yellow hot flame core
+        draw.polygon([(x1 + 2, y2 - 1), (x1 + bw - 2, y2 - 1), (x1 + bw / 2, y2 + flame_h - 2)], fill=(255, 235, 59))
+        draw.polygon([(x2 - 2, y2 - 1), (x2 - bw + 2, y2 - 1), (x2 - bw / 2, y2 + flame_h - 2)], fill=(255, 235, 59))
 
     elif style == "cyber":
         draw.rounded_rectangle([x1, y1, x2, y2], radius=4, fill=pskin["caps"], outline=pskin["primary"], width=1)

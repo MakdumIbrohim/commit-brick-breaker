@@ -21,12 +21,12 @@ def render_svg(engine, output_path="game.svg", max_frames=2000):
         engine.step()
         if step_idx % 2 == 0:
             active_p = []
-            for p in engine.particles[:12]:
+            for p in engine.particles[:18]:
                 active_p.append({
                     "x": round(p["x"], 1),
                     "y": round(p["y"], 1),
                     "color": rgb_to_hex(p.get("color", (255, 255, 255))),
-                    "size": p.get("size", 1),
+                    "size": p.get("size", 2),
                     "type": p.get("type", "debris")
                 })
 
@@ -85,7 +85,7 @@ def render_svg(engine, output_path="game.svg", max_frames=2000):
     trail_count = 2 if engine.skin.get("trail_color") else 0
     trail_kfs = build_trail_keyframes(history, total_frames, trail_count)
 
-    max_particles = 12
+    max_particles = 18
     particle_kfs, particle_info = build_particle_keyframes(history, total_frames, max_particles)
 
     particle_nodes = []
@@ -115,9 +115,11 @@ def render_svg(engine, output_path="game.svg", max_frames=2000):
         f'    .roll-d100 {{ animation: score-d100 {duration_sec}s linear infinite; }}',
         f'    .roll-d10 {{ animation: score-d10 {duration_sec}s linear infinite; }}',
         f'    .roll-d1 {{ animation: score-d1 {duration_sec}s linear infinite; }}',
+        '    @keyframes flame-flicker { 0% { transform: scaleY(0.75); opacity: 0.8; } 100% { transform: scaleY(1.35); opacity: 1; } }',
+        '    @keyframes spark-drift { 0% { transform: translateY(0px) scale(0.7); opacity: 1; } 100% { transform: translateY(8px) scale(1.3); opacity: 0; } }',
         '    @keyframes star-twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.95; } }',
         '    @keyframes cloud-drift { 0% { transform: translateX(0); } 100% { transform: translateX(700px); } }',
-        '    @keyframes pulse-glow { 0% { opacity: 0.35; } 100% { opacity: 0.85; } }',
+        '    @keyframes pulse-glow { 0% { opacity: 0.35; transform: scale(0.9); } 100% { opacity: 0.85; transform: scale(1.15); } }',
         '    @keyframes matrix-stream { 0% { transform: translateY(0); } 100% { transform: translateY(340px); } }',
         f'    @keyframes ball-motion {{\n      ' + '\n      '.join(ball_kf) + '\n    }',
         f'    @keyframes paddle-motion {{\n      ' + '\n      '.join(paddle_kf) + '\n    }'

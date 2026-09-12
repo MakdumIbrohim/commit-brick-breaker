@@ -115,6 +115,11 @@ def generate_paddle_svg(pskin, engine, paddle_hex):
         svg_defs.append(f'      <rect x="{cap_w + 3}" y="{mid_y - 1}" width="{pw - 2*cap_w - 6}" height="2" fill="{core_hex}" />')
         svg_defs.append(f'      <rect x="{cap_w/2 - 1}" y="{mid_y - 1}" width="2" height="2" fill="#ffffff" />')
         svg_defs.append(f'      <rect x="{pw - cap_w/2 - 1}" y="{mid_y - 1}" width="2" height="2" fill="#ffffff" />')
+        # Active laser energy discharges floating up from both battery ends
+        svg_defs.append(f'      <circle cx="{cap_w/2}" cy="{mid_y}" r="4" fill="{prim_hex}" opacity="0.7" style="animation: pulse-glow 0.3s ease-in-out infinite alternate;" />')
+        svg_defs.append(f'      <circle cx="{pw - cap_w/2}" cy="{mid_y}" r="4" fill="{prim_hex}" opacity="0.7" style="animation: pulse-glow 0.3s ease-in-out infinite alternate 0.15s;" />')
+        svg_defs.append(f'      <circle cx="{cap_w/2}" cy="-3" r="1.5" fill="#ffffff" style="animation: spark-drift 0.4s linear infinite;" />')
+        svg_defs.append(f'      <circle cx="{pw - cap_w/2}" cy="-3" r="1.5" fill="#ffffff" style="animation: spark-drift 0.4s linear infinite 0.2s;" />')
         svg_defs.append(f'    </g>')
     elif style == "mecha":
         bw = 6
@@ -127,6 +132,16 @@ def generate_paddle_svg(pskin, engine, paddle_hex):
         svg_defs.append(f'      <polygon points="{pw},2 {pw-bw},-1 {pw-bw},{ph+1} {pw},{ph-2}" fill="{booster_hex}" />')
         svg_defs.append(f'      <rect x="{bw}" y="0" width="{pw - 2*bw}" height="{ph}" fill="{prim_hex}" />')
         svg_defs.append(f'      <rect x="{cx - pw*0.22}" y="-1" width="{pw*0.44}" height="{ph+2}" rx="2" fill="{plate_hex}" />')
+        # Dual multi-layer rocket exhaust flame cones
+        # Outer red flame
+        svg_defs.append(f'      <polygon points="1,{ph-1} {bw-1},{ph-1} {bw/2},{ph+8}" fill="#ff3c1e" style="animation: flame-flicker 0.16s linear infinite alternate; transform-box: fill-box; transform-origin: top;" />')
+        svg_defs.append(f'      <polygon points="{pw-1},{ph-1} {pw-bw+1},{ph-1} {pw - bw/2},{ph+8}" fill="#ff3c1e" style="animation: flame-flicker 0.16s linear infinite alternate 0.08s; transform-box: fill-box; transform-origin: top;" />')
+        # Inner yellow/white flame core
+        svg_defs.append(f'      <polygon points="2,{ph-1} {bw-2},{ph-1} {bw/2},{ph+5}" fill="#ffeb3b" style="animation: flame-flicker 0.12s linear infinite alternate 0.04s; transform-box: fill-box; transform-origin: top;" />')
+        svg_defs.append(f'      <polygon points="{pw-2},{ph-1} {pw-bw+2},{ph-1} {pw - bw/2},{ph+5}" fill="#ffeb3b" style="animation: flame-flicker 0.12s linear infinite alternate 0.09s; transform-box: fill-box; transform-origin: top;" />')
+        # Rocket spark embers shooting downward
+        svg_defs.append(f'      <circle cx="{bw/2}" cy="{ph+9}" r="1.5" fill="#ffa000" style="animation: spark-drift 0.35s linear infinite; transform-box: fill-box;" />')
+        svg_defs.append(f'      <circle cx="{pw - bw/2}" cy="{ph+9}" r="1.5" fill="#ffa000" style="animation: spark-drift 0.35s linear infinite 0.17s; transform-box: fill-box;" />')
         svg_defs.append(f'    </g>')
     elif style == "retro":
         cap_w = 8
@@ -139,7 +154,11 @@ def generate_paddle_svg(pskin, engine, paddle_hex):
         svg_defs.append(f'      <rect x="{cap_w}" y="0" width="{pw - 2*cap_w}" height="{ph}" fill="{prim_hex}" />')
         for sx in range(int(cap_w + 6), int(pw - cap_w - 6), 12):
             svg_defs.append(f'      <polygon points="{sx},{ph} {sx+4},0 {sx+8},0 {sx+4},{ph}" fill="{stripes_hex}" />')
-        svg_defs.append(f'      <line x1="{cap_w}" y1="1" x2="{pw-cap_w}" y2="1" stroke="#ffffff" stroke-width="1" />')
+        svg_defs.append(f'      <line x1="{cap_w}" y1="1" x2="{pw-cap_w}" y2="1" stroke="#ffffff" stroke-width="1.5" />')
+        # Distinct, visible 8-bit golden pixel dust motes floating up (3x3 and 4x4)
+        svg_defs.append(f'      <rect x="{pw/2 - 14}" y="-6" width="3.5" height="3.5" fill="#ffd700" style="animation: spark-drift 0.5s linear infinite;" />')
+        svg_defs.append(f'      <rect x="{pw/2 - 2}" y="-8" width="4.5" height="4.5" fill="#fff59d" style="animation: spark-drift 0.45s linear infinite 0.15s;" />')
+        svg_defs.append(f'      <rect x="{pw/2 + 12}" y="-6" width="3.5" height="3.5" fill="#ffb300" style="animation: spark-drift 0.5s linear infinite 0.3s;" />')
         svg_defs.append(f'    </g>')
     elif style == "cyber":
         prim_hex = rgb_to_hex(pskin["primary"])
@@ -147,9 +166,12 @@ def generate_paddle_svg(pskin, engine, paddle_hex):
         caps_hex = rgb_to_hex(pskin["caps"])
         cx = pw / 2
         svg_defs.append(f'    <g id="paddle-graphic">')
-        svg_defs.append(f'      <rect x="0" y="0" width="{pw}" height="{ph}" rx="4" fill="{caps_hex}" stroke="{prim_hex}" stroke-width="1" />')
+        svg_defs.append(f'      <rect x="0" y="0" width="{pw}" height="{ph}" rx="4" fill="{caps_hex}" stroke="{prim_hex}" stroke-width="1.5" />')
         svg_defs.append(f'      <rect x="6" y="2" width="{pw - 12}" height="{ph - 4}" fill="{prim_hex}" />')
-        svg_defs.append(f'      <circle cx="{cx}" cy="{mid_y}" r="3" fill="{core_hex}" />')
+        svg_defs.append(f'      <circle cx="{cx}" cy="{mid_y}" r="4.5" fill="{core_hex}" style="animation: pulse-glow 0.4s ease-in-out infinite alternate;" />')
+        # Big neon data bit blocks
+        svg_defs.append(f'      <rect x="{cx - 16}" y="-6" width="3.5" height="3.5" fill="{core_hex}" style="animation: spark-drift 0.5s linear infinite;" />')
+        svg_defs.append(f'      <rect x="{cx + 16}" y="-7" width="3.5" height="3.5" fill="{prim_hex}" style="animation: spark-drift 0.5s linear infinite 0.25s;" />')
         svg_defs.append(f'    </g>')
     else:
         svg_defs.append(f'    <g id="paddle-graphic">')

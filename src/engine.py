@@ -8,7 +8,7 @@ from src.config import (
 )
 from src.ambient import init_ambient_effects, update_ambient_effects
 from src.particles import (
-    create_ball_particles, create_paddle_particles, update_particles
+    create_ball_particles, create_paddle_particles, create_paddle_impact_particles, update_particles
 )
 
 class BrickBreakerEngine:
@@ -82,11 +82,6 @@ class BrickBreakerEngine:
         if new_p:
             self.particles.extend(new_p)
 
-    def spawn_paddle_particles(self):
-        new_p = create_paddle_particles(self.paddle_skin, self.paddle_x, self.paddle_y, self.paddle_w, self.paddle_h)
-        if new_p:
-            self.particles.extend(new_p)
-
     def step(self):
         self.sim_steps += 1
 
@@ -123,10 +118,6 @@ class BrickBreakerEngine:
         # Spawn ambient trail particles behind the ball in flight (subtle & short)
         if self.state == "playing" and self.sim_steps % 3 == 0:
             self.spawn_particles(self.ball_x, self.ball_y, count=1, is_trail=True)
-
-        # Spawn specialized particles from paddle when in play
-        if self.state == "playing":
-            self.spawn_paddle_particles()
 
         # Update animated theme ambient background items
         update_ambient_effects(self.ambient_items, self.theme.get("bg_effect"), self.sim_steps, self.canvas_w, self.canvas_h)
@@ -204,14 +195,16 @@ class BrickBreakerEngine:
                 self.miss_active = False
                 self.miss_side = None
 
-                # Spawn subtle elemental impact spark on paddle bounce
-                self.spawn_particles(self.ball_x, self.paddle_y, count=4)
-
                 # Realistic physics bounce based on hit point on paddle (-1 to 1) + dynamic random tilt
                 hit_offset = (self.ball_x - (self.paddle_x + self.paddle_w / 2)) / (self.paddle_w / 2)
                 hit_offset = max(-0.95, min(0.95, hit_offset))
                 hit_offset += random.uniform(-0.15, 0.15)
                 hit_offset = max(-0.95, min(0.95, hit_offset))
+
+                # Spawn powerful, directional paddle bounce blast matching GIF visual punch
+                impact_p = create_paddle_impact_particles(self.paddle_skin, self.skin, self.ball_x, self.paddle_y, hit_offset)
+                if impact_p:
+                    self.particles.extend(impact_p)
 
                 # Map hit_offset to bounce angle (-145 deg to -35 deg)
                 bounce_angle = math.radians(-90 + hit_offset * 55)
