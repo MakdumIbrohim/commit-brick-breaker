@@ -16,17 +16,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Generate game GIF
+      - name: Generate Brick Breaker
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_user: ${{ github.repository_owner }}
-          output_path: game.gif
+          output_path: game.svg
+          ball_skin: classic
+          theme: dark
+          paddle_skin: default
 
       - name: Commit and push output
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add game.gif
-          git diff --staged --quiet || git commit -m "chore: update brick breaker game"
+          git add game.svg game.gif || true
+          git diff --staged --quiet || git commit -m "chore: update brick breaker assets"
+          git pull --rebase --autostash origin main || true
           git push
