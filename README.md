@@ -54,10 +54,14 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_user: ${{ github.repository_owner }}
-          output_path: game.svg # Supports .svg (crisp, lightweight vector) or .gif
-          ball_skin: classic # classic | fire | ice | lightning | poison
-          theme: dark # dark | sky | synthwave | matrix
-          paddle_skin: default # default | laser | retro | mecha | cyber
+          # Options: game.svg (recommended) or game.gif
+          output_path: game.svg
+          # Options: classic | fire | ice | lightning | poison
+          ball_skin: classic
+          # Options: dark | sky | synthwave | matrix
+          theme: dark
+          # Options: default | laser | retro | mecha | cyber
+          paddle_skin: default
 
       - name: Commit and Push
         run: |
@@ -155,10 +159,14 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_user: ${{ github.repository_owner }}
-          output_path: game.svg # Mendukung .svg (vektor tajam & ringan) atau .gif
-          ball_skin: classic # classic | fire | ice | lightning | poison
-          theme: dark # dark | sky | synthwave | matrix
-          paddle_skin: default # default | laser | retro | mecha | cyber
+          # Opsi: game.svg (disarankan) atau game.gif
+          output_path: game.svg
+          # Opsi: classic | fire | ice | lightning | poison
+          ball_skin: classic
+          # Opsi: dark | sky | synthwave | matrix
+          theme: dark
+          # Opsi: default | laser | retro | mecha | cyber
+          paddle_skin: default
 
       - name: Commit and Push
         run: |

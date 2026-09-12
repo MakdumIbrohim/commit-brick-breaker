@@ -1,0 +1,6 @@
+services:
+  generator:
+    build: .
+    volumes:
+      - ./:/output
+    command: ["MakdumIbrohim", "/output/game.svg", "classic", "dark", "default"]
