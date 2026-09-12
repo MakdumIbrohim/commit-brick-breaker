@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <img src="game.gif" alt="commit-brick-breaker" />
+  <img src="game.svg" alt="commit-brick-breaker" />
 </p>
 
 Turn your GitHub contribution graph into an automated retro Brick Breaker game animation (SVG or GIF) for your profile README.
@@ -72,28 +72,28 @@ jobs:
 #### Ball Skin Options (`ball_skin`)
 | Option | Preview |
 | :---: | :---: |
-| `classic` (default) | <img src="assets/preview/sample_classic.gif" width="340" alt="classic" /> |
-| `fire` | <img src="assets/preview/sample_fire.gif" width="340" alt="fire" /> |
-| `ice` | <img src="assets/preview/sample_ice.gif" width="340" alt="ice" /> |
-| `lightning` | <img src="assets/preview/sample_lightning.gif" width="340" alt="lightning" /> |
-| `poison` | <img src="assets/preview/sample_poison.gif" width="340" alt="poison" /> |
+| `classic` (default) | <img src="assets/preview/sample_classic.svg" width="340" alt="classic" /> |
+| `fire` | <img src="assets/preview/sample_fire.svg" width="340" alt="fire" /> |
+| `ice` | <img src="assets/preview/sample_ice.svg" width="340" alt="ice" /> |
+| `lightning` | <img src="assets/preview/sample_lightning.svg" width="340" alt="lightning" /> |
+| `poison` | <img src="assets/preview/sample_poison.svg" width="340" alt="poison" /> |
 
 #### Paddle Skin Options (`paddle_skin`)
 | Option | Preview |
 | :---: | :---: |
 | `default` | Primary theme color |
-| `laser` | <img src="assets/preview/sample_paddle_laser.gif" width="340" alt="paddle laser" /> |
-| `retro` | <img src="assets/preview/sample_paddle_retro.gif" width="340" alt="paddle retro" /> |
-| `mecha` | <img src="assets/preview/sample_paddle_mecha.gif" width="340" alt="paddle mecha" /> |
-| `cyber` | <img src="assets/preview/sample_paddle_cyber.gif" width="340" alt="paddle cyber" /> |
+| `laser` | <img src="assets/preview/sample_paddle_laser.svg" width="340" alt="paddle laser" /> |
+| `retro` | <img src="assets/preview/sample_paddle_retro.svg" width="340" alt="paddle retro" /> |
+| `mecha` | <img src="assets/preview/sample_paddle_mecha.svg" width="340" alt="paddle mecha" /> |
+| `cyber` | <img src="assets/preview/sample_paddle_cyber.svg" width="340" alt="paddle cyber" /> |
 
 #### Board Theme Options (`theme`)
 | Option | Preview |
 | :---: | :---: |
-| `dark` (default) | <img src="assets/preview/sample_theme_dark.gif" width="340" alt="dark theme" /> |
-| `sky` | <img src="assets/preview/sample_theme_sky.gif" width="340" alt="sky theme" /> |
-| `synthwave` | <img src="assets/preview/sample_theme_synthwave.gif" width="340" alt="synthwave theme" /> |
-| `matrix` | <img src="assets/preview/sample_theme_matrix.gif" width="340" alt="matrix theme" /> |
+| `dark` (default) | <img src="assets/preview/sample_theme_dark.svg" width="340" alt="dark theme" /> |
+| `sky` | <img src="assets/preview/sample_theme_sky.svg" width="340" alt="sky theme" /> |
+| `synthwave` | <img src="assets/preview/sample_theme_synthwave.svg" width="340" alt="synthwave theme" /> |
+| `matrix` | <img src="assets/preview/sample_theme_matrix.svg" width="340" alt="matrix theme" /> |
 
 2. Enable workflow permissions: Repo **Settings** > **Actions** > **General** > **Workflow permissions** > select **Read and write permissions** > **Save**.
 
@@ -174,18 +174,18 @@ jobs:
 | Opsi | Preview |
 | :---: | :---: |
 | `default` | Warna primer tema aktif |
-| `laser` | <img src="assets/preview/sample_paddle_laser.gif" width="340" alt="paddle laser" /> |
-| `retro` | <img src="assets/preview/sample_paddle_retro.gif" width="340" alt="paddle retro" /> |
-| `mecha` | <img src="assets/preview/sample_paddle_mecha.gif" width="340" alt="paddle mecha" /> |
-| `cyber` | <img src="assets/preview/sample_paddle_cyber.gif" width="340" alt="paddle cyber" /> |
+| `laser` | <img src="assets/preview/sample_paddle_laser.svg" width="340" alt="paddle laser" /> |
+| `retro` | <img src="assets/preview/sample_paddle_retro.svg" width="340" alt="paddle retro" /> |
+| `mecha` | <img src="assets/preview/sample_paddle_mecha.svg" width="340" alt="paddle mecha" /> |
+| `cyber` | <img src="assets/preview/sample_paddle_cyber.svg" width="340" alt="paddle cyber" /> |
 
 #### Pilihan Tema Papan (`theme`)
 | Opsi | Preview |
 | :---: | :---: |
-| `dark` (default) | <img src="assets/preview/sample_theme_dark.gif" width="340" alt="dark theme" /> |
-| `sky` | <img src="assets/preview/sample_theme_sky.gif" width="340" alt="sky theme" /> |
-| `synthwave` | <img src="assets/preview/sample_theme_synthwave.gif" width="340" alt="synthwave theme" /> |
-| `matrix` | <img src="assets/preview/sample_theme_matrix.gif" width="340" alt="matrix theme" /> |
+| `dark` (default) | <img src="assets/preview/sample_theme_dark.svg" width="340" alt="dark theme" /> |
+| `sky` | <img src="assets/preview/sample_theme_sky.svg" width="340" alt="sky theme" /> |
+| `synthwave` | <img src="assets/preview/sample_theme_synthwave.svg" width="340" alt="synthwave theme" /> |
+| `matrix` | <img src="assets/preview/sample_theme_matrix.svg" width="340" alt="matrix theme" /> |
 
 2. Beri izin write: buka repo **Settings** > **Actions** > **General** > **Workflow permissions** > pilih **Read and write permissions** > **Save**.
 
