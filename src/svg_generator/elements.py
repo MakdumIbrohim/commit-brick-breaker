@@ -122,11 +122,6 @@ def generate_paddle_svg(pskin, engine, paddle_hex):
         svg_defs.append(f'      <rect x="{cap_w + 3}" y="{mid_y - 1}" width="{pw - 2*cap_w - 6}" height="2" fill="{core_hex}" />')
         svg_defs.append(f'      <rect x="{cap_w/2 - 1}" y="{mid_y - 1}" width="2" height="2" fill="#ffffff" />')
         svg_defs.append(f'      <rect x="{pw - cap_w/2 - 1}" y="{mid_y - 1}" width="2" height="2" fill="#ffffff" />')
-        # Active laser energy discharges floating up from both battery ends
-        svg_defs.append(f'      <circle cx="{cap_w/2}" cy="{mid_y}" r="4" fill="{prim_hex}" opacity="0.7" style="animation: pulse-glow 0.3s ease-in-out infinite alternate;" />')
-        svg_defs.append(f'      <circle cx="{pw - cap_w/2}" cy="{mid_y}" r="4" fill="{prim_hex}" opacity="0.7" style="animation: pulse-glow 0.3s ease-in-out infinite alternate 0.15s;" />')
-        svg_defs.append(f'      <circle cx="{cap_w/2}" cy="-3" r="1.5" fill="#ffffff" style="animation: spark-drift 0.4s linear infinite;" />')
-        svg_defs.append(f'      <circle cx="{pw - cap_w/2}" cy="-3" r="1.5" fill="#ffffff" style="animation: spark-drift 0.4s linear infinite 0.2s;" />')
         svg_defs.append(f'    </g>')
     elif style == "mecha":
         bw = 6
