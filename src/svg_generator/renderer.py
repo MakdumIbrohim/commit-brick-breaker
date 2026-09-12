@@ -21,7 +21,7 @@ def render_svg(engine, output_path="game.svg", max_frames=2000):
         engine.step()
         if step_idx % 2 == 0:
             active_p = []
-            for p in engine.particles[:14]:
+            for p in engine.particles[:12]:
                 active_p.append({
                     "x": round(p["x"], 1),
                     "y": round(p["y"], 1),
@@ -62,10 +62,10 @@ def render_svg(engine, output_path="game.svg", max_frames=2000):
     ball_kf, paddle_kf = build_svg_keyframes(history, total_frames)
     brick_disappear = calculate_brick_lifetimes(engine.initial_grid_bricks, history, total_frames)
 
-    trail_count = 4 if engine.skin.get("trail_color") else 0
+    trail_count = 2 if engine.skin.get("trail_color") else 0
     trail_kfs = build_trail_keyframes(history, total_frames, trail_count)
 
-    max_particles = 14
+    max_particles = 12
     particle_kfs, particle_info = build_particle_keyframes(history, total_frames, max_particles)
 
     particle_nodes = []
@@ -130,10 +130,29 @@ def render_svg(engine, output_path="game.svg", max_frames=2000):
                     bcolor = palette[3]
                 b_hex = rgb_to_hex(bcolor)
 
-                disp = brick_disappear.get((r, c), 100.0)
+                # Get elemental shatter sequence colors
+                disp_info = brick_disappear.get((r, c), {"hit": 100.0, "end": 100.0})
+                t_hit = disp_info["hit"]
+                t_end = disp_info["end"]
                 kf_name = f"b{brick_idx}"
-                svg.append(f'    @keyframes {kf_name} {{ 0%, {disp}% {{ opacity: 1; }} {min(100.0, disp + 0.05)}%, 100% {{ opacity: 0; }} }}')
-                svg.append(f'    .{kf_name} {{ fill: {b_hex}; animation: {kf_name} {duration_sec}s linear infinite; }}')
+                elem = engine.skin.get("element", "none")
+
+                if elem == "ice":
+                    shatter_col = "#afeeff"
+                    svg.append(f'    @keyframes {kf_name} {{ 0%, {t_hit}% {{ fill: {b_hex}; opacity: 1; }} {t_hit + 0.01}% {{ fill: {shatter_col}; }} {t_end}% {{ fill: #d8f5ff; opacity: 1; }} {min(100.0, t_end + 0.05)}%, 100% {{ opacity: 0; }} }}')
+                elif elem == "fire":
+                    shatter_col = "#ff4500"
+                    svg.append(f'    @keyframes {kf_name} {{ 0%, {t_hit}% {{ fill: {b_hex}; opacity: 1; }} {t_hit + 0.01}% {{ fill: {shatter_col}; }} {t_end}% {{ fill: #ff8c00; opacity: 0.8; }} {min(100.0, t_end + 0.05)}%, 100% {{ opacity: 0; }} }}')
+                elif elem == "lightning":
+                    shatter_col = "#ffff60"
+                    svg.append(f'    @keyframes {kf_name} {{ 0%, {t_hit}% {{ fill: {b_hex}; opacity: 1; }} {t_hit + 0.01}% {{ fill: {shatter_col}; }} {t_end}% {{ fill: #d299ff; opacity: 0.9; }} {min(100.0, t_end + 0.05)}%, 100% {{ opacity: 0; }} }}')
+                elif elem == "poison":
+                    shatter_col = "#238636"
+                    svg.append(f'    @keyframes {kf_name} {{ 0%, {t_hit}% {{ fill: {b_hex}; opacity: 1; }} {t_hit + 0.01}% {{ fill: {shatter_col}; }} {t_end}% {{ fill: #0e4429; opacity: 0.7; }} {min(100.0, t_end + 0.05)}%, 100% {{ opacity: 0; }} }}')
+                else:
+                    svg.append(f'    @keyframes {kf_name} {{ 0%, {t_hit}% {{ fill: {b_hex}; opacity: 1; }} {t_end}% {{ opacity: 1; }} {min(100.0, t_end + 0.05)}%, 100% {{ opacity: 0; }} }}')
+
+                svg.append(f'    .{kf_name} {{ animation: {kf_name} {duration_sec}s linear infinite; }}')
 
                 brick_rects.append(f'  <rect class="empty-cell" x="{bx + 1:.1f}" y="{by + 1:.1f}" width="{engine.cell_w - 2:.1f}" height="{engine.cell_h - 2:.1f}" />')
                 brick_rects.append(f'  <rect class="{kf_name}" x="{bx + 1:.1f}" y="{by + 1:.1f}" width="{engine.cell_w - 2:.1f}" height="{engine.cell_h - 2:.1f}" />')

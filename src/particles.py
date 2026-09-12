@@ -11,36 +11,38 @@ def create_ball_particles(skin, x, y, count=8, is_trail=False):
         return []
 
     particles = []
+    # Moderate balanced burst speed on impact collisions
+    spd_mult = 1.0 if is_trail else 1.4
     for _ in range(count):
         color = random.choice(colors)
         if elem == "fire":
-            vx = random.uniform(-1.8, 1.8)
-            vy = random.uniform(-3.5, -0.5) if not is_trail else random.uniform(-2.0, 0.5)
-            life = random.randint(6, 12)
+            vx = random.uniform(-1.6, 1.6) * spd_mult
+            vy = (random.uniform(-3.0, -0.6) if not is_trail else random.uniform(-1.5, 0.4))
+            life = random.randint(8, 13) if not is_trail else random.randint(5, 8)
             p_type = "spark" if random.random() < 0.6 else "ember"
-            size = random.choice([1, 2])
+            size = random.choice([2, 3]) if not is_trail else 1
         elif elem == "ice":
-            vx = random.uniform(-1.2, 1.2)
-            vy = random.uniform(0.5, 2.2) if not is_trail else random.uniform(-0.8, 1.2)
-            life = random.randint(8, 16)
+            vx = random.uniform(-1.6, 1.6) * spd_mult
+            vy = random.uniform(-1.2, 2.4) if not is_trail else random.uniform(-0.6, 1.0)
+            life = random.randint(9, 14) if not is_trail else random.randint(6, 9)
             p_type = "snowflake" if random.random() < 0.5 else "crystal"
-            size = random.choice([2, 3])
+            size = random.choice([2, 3]) if not is_trail else 2
         elif elem == "lightning":
-            vx = random.uniform(-3.5, 3.5)
-            vy = random.uniform(-3.5, 3.5)
-            life = random.randint(4, 7)
-            p_type = "zap"
-            size = random.choice([1, 2])
-        elif elem == "poison":
-            vx = random.uniform(-1.0, 1.0)
-            vy = random.uniform(-2.0, -0.4)
-            life = random.randint(9, 15)
-            p_type = "bubble"
-            size = random.choice([2, 3])
-        else:
-            vx = random.uniform(-2.2, 2.2)
-            vy = random.uniform(-2.2, 2.2)
+            vx = random.uniform(-2.8, 2.8)
+            vy = random.uniform(-2.8, 2.8)
             life = random.randint(5, 9)
+            p_type = "zap"
+            size = random.choice([2, 3]) if not is_trail else 1
+        elif elem == "poison":
+            vx = random.uniform(-1.4, 1.4) * spd_mult
+            vy = random.uniform(-2.5, 0.5) if not is_trail else random.uniform(-1.6, -0.3)
+            life = random.randint(9, 15) if not is_trail else random.randint(6, 10)
+            p_type = "bubble"
+            size = random.choice([2, 3]) if not is_trail else 2
+        else:
+            vx = random.uniform(-2.0, 2.0) * spd_mult
+            vy = random.uniform(-2.0, 2.0) * spd_mult
+            life = random.randint(6, 10)
             p_type = "debris"
             size = 1
 

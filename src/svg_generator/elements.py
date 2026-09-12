@@ -14,27 +14,34 @@ def get_heart_svg_path(cx, cy, size=5):
     ]
     return f"M {coords[0][0]} {coords[0][1]} " + " ".join(f"L {x} {y}" for x, y in coords[1:]) + " Z"
 
-def generate_particle_svg_node(ptype, sz=1):
+def generate_particle_svg_node(ptype, sz=2):
     if ptype == "snowflake":
-        return f'<line x1="-{sz}" y1="0" x2="{sz}" y2="0" stroke="currentColor" stroke-width="1" /><line x1="0" y1="-{sz}" x2="0" y2="{sz}" stroke="currentColor" stroke-width="1" />'
+        # Cross snowflake shape (+)
+        return f'<line x1="-{sz}" y1="0" x2="{sz}" y2="0" stroke="currentColor" stroke-width="1.6" /><line x1="0" y1="-{sz}" x2="0" y2="{sz}" stroke="currentColor" stroke-width="1.6" />'
     elif ptype == "crystal":
-        return f'<polygon points="0,-{sz} {sz},0 0,{sz} -{sz},0" fill="currentColor" />'
+        # Diamond frost crystal
+        return f'<polygon points="0,-{sz*1.2:.1f} {sz},0 0,{sz*1.2:.1f} -{sz},0" fill="currentColor" />'
     elif ptype == "ember":
+        # Glowing round ember
         return f'<circle cx="0" cy="0" r="{sz}" fill="currentColor" />'
     elif ptype == "spark":
-        return f'<line x1="0" y1="0" x2="-2" y2="-2" stroke="currentColor" stroke-width="1.2" />'
+        # Sharp spark streak
+        return f'<line x1="0" y1="0" x2="-{sz*1.5:.1f}" y2="-{sz*1.5:.1f}" stroke="currentColor" stroke-width="1.8" />'
     elif ptype == "bubble":
-        return f'<circle cx="0" cy="0" r="{sz}" fill="none" stroke="currentColor" stroke-width="1" />'
+        # Hollow poison bubble
+        return f'<circle cx="0" cy="0" r="{sz}" fill="none" stroke="currentColor" stroke-width="1.5" />'
     elif ptype == "zap":
-        return f'<line x1="-2" y1="-2" x2="2" y2="2" stroke="currentColor" stroke-width="1.2" />'
+        # Jagged electric zap line
+        return f'<line x1="-{sz}" y1="-{sz}" x2="{sz}" y2="{sz}" stroke="currentColor" stroke-width="2" />'
     elif ptype == "thrust":
+        # Rocket flame jet
         return f'<polygon points="-{sz},0 {sz},0 0,{sz*2.5:.1f}" fill="currentColor" />'
     elif ptype == "energy":
         return f'<circle cx="0" cy="0" r="{sz}" fill="currentColor" />'
     elif ptype == "pixel":
         return f'<rect x="-{sz}" y="-{sz}" width="{sz*2}" height="{sz*2}" fill="currentColor" />'
     else:
-        return '<rect x="-1" y="-1" width="2" height="2" fill="currentColor" />'
+        return f'<rect x="-{sz}" y="-{sz}" width="{sz*2}" height="{sz*2}" fill="currentColor" />'
 
 def generate_ambient_svg(theme, engine):
     elements = []

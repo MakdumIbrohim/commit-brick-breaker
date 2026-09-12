@@ -90,8 +90,32 @@ def render_frame(engine):
         for c in range(engine.cols):
             bx = engine.margin_x + c * engine.cell_w
             by = engine.margin_y + r * engine.cell_h
-            color = get_brick_color(engine.grid[r][c], theme) if (r, c) in engine.bricks else theme["empty_brick"]
-            draw.rectangle([bx + 1, by + 1, bx + engine.cell_w - 2, by + engine.cell_h - 2], fill=color)
+            if (r, c) in engine.bricks:
+                color = get_brick_color(engine.grid[r][c], theme)
+                draw.rectangle([bx + 1, by + 1, bx + engine.cell_w - 2, by + engine.cell_h - 2], fill=color)
+            elif (r, c) in engine.shattering_bricks:
+                # Elemental transition state before disappearing
+                sh = engine.shattering_bricks[(r, c)]
+                elem = sh["elem"]
+                prog = 1.0 - (sh["timer"] / sh["max"])
+                if elem == "ice":
+                    # Freezing ice crystal block
+                    draw.rectangle([bx + 1, by + 1, bx + engine.cell_w - 2, by + engine.cell_h - 2], fill=(175, 238, 255), outline=(240, 250, 255), width=1)
+                elif elem == "fire":
+                    # Glowing molten burning block
+                    burn_col = (255, int(140 * (1 - prog)), 0)
+                    draw.rectangle([bx + 1, by + 1, bx + engine.cell_w - 2, by + engine.cell_h - 2], fill=burn_col)
+                elif elem == "lightning":
+                    # Electrified flashing block
+                    flash = (255, 255, 150) if sh["timer"] % 2 == 0 else (200, 100, 255)
+                    draw.rectangle([bx + 1, by + 1, bx + engine.cell_w - 2, by + engine.cell_h - 2], fill=flash)
+                elif elem == "poison":
+                    # Acid dissolving melted block
+                    draw.rectangle([bx + 1, by + 1 + int(prog * 4), bx + engine.cell_w - 2, by + engine.cell_h - 2], fill=(40, 180, 60))
+                else:
+                    draw.rectangle([bx + 1, by + 1, bx + engine.cell_w - 2, by + engine.cell_h - 2], fill=(200, 200, 200))
+            else:
+                draw.rectangle([bx + 1, by + 1, bx + engine.cell_w - 2, by + engine.cell_h - 2], fill=theme["empty_brick"])
 
     # 4. Particles
     draw_particles(draw, engine.particles)

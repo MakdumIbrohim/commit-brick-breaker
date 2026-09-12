@@ -50,6 +50,7 @@ class BrickBreakerEngine:
         self.state_timer = 0
         self.particles = []
         self.trail = []
+        self.shattering_bricks = {}  # (r, c): {"timer": int, "max": int, "elem": str, "bx": float, "by": float}
         self.sim_steps = 0
         self.miss_active = False
         self.miss_side = None
@@ -91,9 +92,37 @@ class BrickBreakerEngine:
 
         self.particles = update_particles(self.particles, self.sim_steps)
 
-        # Spawn ambient trail particles behind the ball in flight
-        if self.state == "playing" and self.sim_steps % 2 == 0:
-            self.spawn_particles(self.ball_x, self.ball_y, count=2, is_trail=True)
+        # Update shattering bricks animation & release finale burst
+        expired_shatters = []
+        for (r, c), sh in self.shattering_bricks.items():
+            sh["timer"] -= 1
+            if sh["timer"] <= 0:
+                expired_shatters.append((r, c))
+                # Release element-specific burst when shattering concludes
+                elem = sh["elem"]
+                cx = sh["bx"] + self.cell_w / 2
+                cy = sh["by"] + self.cell_h / 2
+                if elem == "ice":
+                    # Frost shards break apart
+                    self.spawn_particles(cx, cy, count=7)
+                elif elem == "fire":
+                    # Ashes and burning embers burst
+                    self.spawn_particles(cx, cy, count=6)
+                elif elem == "lightning":
+                    # Overload sparks burst
+                    self.spawn_particles(cx, cy, count=6)
+                elif elem == "poison":
+                    # Toxic acid splash
+                    self.spawn_particles(cx, cy, count=5)
+                else:
+                    self.spawn_particles(cx, cy, count=4)
+
+        for rc in expired_shatters:
+            del self.shattering_bricks[rc]
+
+        # Spawn ambient trail particles behind the ball in flight (subtle & short)
+        if self.state == "playing" and self.sim_steps % 3 == 0:
+            self.spawn_particles(self.ball_x, self.ball_y, count=1, is_trail=True)
 
         # Spawn specialized particles from paddle when in play
         if self.state == "playing":
@@ -102,10 +131,10 @@ class BrickBreakerEngine:
         # Update animated theme ambient background items
         update_ambient_effects(self.ambient_items, self.theme.get("bg_effect"), self.sim_steps, self.canvas_w, self.canvas_h)
 
-        # Update motion trail
+        # Update motion trail (compact tail: max 2 points)
         if self.state == "playing":
             self.trail.append((self.ball_x, self.ball_y))
-            if len(self.trail) > 5:
+            if len(self.trail) > 2:
                 self.trail.pop(0)
         else:
             self.trail = []
@@ -124,17 +153,20 @@ class BrickBreakerEngine:
         self.ball_x += self.vx
         self.ball_y += self.vy
 
-        # Wall collisions
+        # Wall collisions with subtle elemental impact sparks
         if self.ball_x - self.ball_r <= self.margin_x:
             self.ball_x = self.margin_x + self.ball_r
             self.vx = abs(self.vx)
+            self.spawn_particles(self.ball_x, self.ball_y, count=3)
         elif self.ball_x + self.ball_r >= self.canvas_w - self.margin_x:
             self.ball_x = self.canvas_w - self.margin_x - self.ball_r
             self.vx = -abs(self.vx)
+            self.spawn_particles(self.ball_x, self.ball_y, count=3)
 
         if self.ball_y - self.ball_r <= 10:
             self.ball_y = 10 + self.ball_r
             self.vy = abs(self.vy)
+            self.spawn_particles(self.ball_x, self.ball_y, count=3)
 
         # Ensure vertical speed never stagnates horizontally
         if abs(self.vy) < 2.5:
@@ -171,6 +203,9 @@ class BrickBreakerEngine:
             if self.paddle_x - 3 <= self.ball_x <= self.paddle_x + self.paddle_w + 3:
                 self.miss_active = False
                 self.miss_side = None
+
+                # Spawn subtle elemental impact spark on paddle bounce
+                self.spawn_particles(self.ball_x, self.paddle_y, count=4)
 
                 # Realistic physics bounce based on hit point on paddle (-1 to 1) + dynamic random tilt
                 hit_offset = (self.ball_x - (self.paddle_x + self.paddle_w / 2)) / (self.paddle_w / 2)
@@ -223,7 +258,19 @@ class BrickBreakerEngine:
                 by1 - self.ball_r <= self.ball_y <= by2 + self.ball_r):
 
                 del self.bricks[(r, c)]
-                self.spawn_particles((bx1 + bx2) / 2, (by1 + by2) / 2, count=10)
+                elem = self.skin.get("element", "none")
+                # Trigger brick element transition (freezing / igniting / electrocuting / melting)
+                shatter_dur = 6 if elem in ("ice", "fire", "poison") else 4
+                self.shattering_bricks[(r, c)] = {
+                    "timer": shatter_dur,
+                    "max": shatter_dur,
+                    "elem": elem,
+                    "bx": bx1,
+                    "by": by1,
+                    "orig_val": self.grid[r][c]
+                }
+                # Initial light contact spark
+                self.spawn_particles((bx1 + bx2) / 2, (by1 + by2) / 2, count=2)
 
                 # Determine impact normal vector
                 overlap_l = (self.ball_x + self.ball_r) - bx1
